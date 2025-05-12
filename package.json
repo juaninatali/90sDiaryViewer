@@ -1,6 +1,7 @@
 {
   "name": "diary-viewer",
   "version": "0.1.0",
+  "author": "https://github.com/juaninatali",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",

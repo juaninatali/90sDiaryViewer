@@ -6,6 +6,12 @@ import { diaryEntries } from "@/data/entries";
 import { DiaryImage } from "@/components/DiaryImage";
 import Link from "next/link";
 
+function truncate(text: string, length: number): string {
+  return text.length > length
+    ? text.slice(0, text.lastIndexOf(" ", length)) + "..."
+    : text;
+}
+
 export default function DiaryViewer() {
   const [search, setSearch] = useState("");
   const [activeTag, setActiveTag] = useState("");
@@ -14,9 +20,10 @@ export default function DiaryViewer() {
   const [endDate, setEndDate] = useState("");
 
   const isFiltering = search !== "" || activeTag !== "" || activeYear !== "" || startDate !== "" || endDate !== "";
-  const allTags = Array.from(new Set(diaryEntries.flatMap(entry => entry.tags)));
-  const allYears = Array.from(new Set(diaryEntries.map(entry => entry.date.slice(0, 4))));
-
+  const allTags = Array.from(new Set(diaryEntries.flatMap(entry => entry.tags)))
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+  const allYears = Array.from(new Set(diaryEntries.map(entry => entry.date.slice(0, 4))))
+    .sort();
   const filteredEntries = diaryEntries.filter(entry => {
     const matchesSearch =
       entry.text.toLowerCase().includes(search.toLowerCase()) ||
@@ -35,7 +42,7 @@ export default function DiaryViewer() {
 
       {/* Search */}
       <Input
-        placeholder="Search by keyword, artist, vibe..."
+        placeholder="Search by artist, venue, genre..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
@@ -119,12 +126,20 @@ export default function DiaryViewer() {
                   <h2 className="text-xl font-bold">{entry.title}</h2>
                   <p className="text-sm text-muted-foreground">{entry.date} — {entry.location}</p>
                   <div className="flex flex-wrap gap-2">
-                    {entry.tags.map((tag) => (
-                      <Badge key={tag}>{tag}</Badge>
+                    {[...entry.tags]
+                      .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }))
+                      .map((tag) => <Badge key={tag}>{tag}</Badge>)
+                    }
+                  </div>
+                  <p className="whitespace-pre-wrap text-muted-foreground">
+                    {truncate(entry.text, 150)}{" "}
+                    <a href={`/diary/${entry.id}`} className="text-blue-600 underline">Read more</a>
+                  </p>
+                  <div className="flex flex-wrap gap-4">
+                    {entry.images.map((src, index) => (
+                      <DiaryImage key={index} src={src} alt={`Diary Scan ${index + 1}`} />
                     ))}
                   </div>
-                  <p className="whitespace-pre-wrap">{entry.text}</p>
-                  <DiaryImage src={entry.images[0] ?? "/images/placeholder.png"} alt="Diary Scan" />
                 </CardContent>
               </Card>
             </Link>
@@ -135,6 +150,5 @@ export default function DiaryViewer() {
           </div>
         )}
       </div>
-      );
     </div>);
 }

@@ -31,7 +31,11 @@ export default function EntryPage() {
                         ))}
                     </div>
                     <p className="whitespace-pre-wrap">{entry.text}</p>
-                    <DiaryImage src={entry.images[0] ?? "/images/placeholder.png"} alt="Diary Scan" />
+                    <div className="flex flex-wrap gap-4">
+                    {entry.images.map((src, index) => (
+                      <DiaryImage key={index} src={src} alt={`Diary Scan ${index + 1}`} />
+                    ))}
+                  </div>
                 </CardContent>
             </Card>
         </Layout>
