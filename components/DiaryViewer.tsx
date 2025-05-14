@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { diaryEntries } from "@/data/entries";
 import { DiaryImage } from "@/components/DiaryImage";
 import Link from "next/link";
+import { DiaryEntry } from "@/types/diary";
 
 function truncate(text: string, length: number): string {
   return text.length > length
@@ -12,7 +12,7 @@ function truncate(text: string, length: number): string {
     : text;
 }
 
-export default function DiaryViewer() {
+export default function DiaryViewer({ entries }: { entries: DiaryEntry[] }) {
   const [search, setSearch] = useState("");
   const [activeTag, setActiveTag] = useState("");
   const [activeYear, setActiveYear] = useState("");
@@ -20,14 +20,15 @@ export default function DiaryViewer() {
   const [endDate, setEndDate] = useState("");
 
   const isFiltering = search !== "" || activeTag !== "" || activeYear !== "" || startDate !== "" || endDate !== "";
-  const allTags = Array.from(new Set(diaryEntries.flatMap(entry => entry.tags)))
+  const allTags = Array.from(new Set(entries.flatMap(entry => entry.tags)))
     .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
-  const allYears = Array.from(new Set(diaryEntries.map(entry => entry.date.slice(0, 4))))
+  const allYears = Array.from(new Set(entries.map(entry => entry.date.slice(0, 4))))
     .sort();
-  const filteredEntries = diaryEntries.filter(entry => {
+
+  const filteredEntries = entries.filter(entry => {
     const matchesSearch =
       entry.text.toLowerCase().includes(search.toLowerCase()) ||
-      entry.tags.some(tag => tag.toLowerCase().includes(search.toLowerCase()));
+      entry.tags.some((tag: string) => tag.toLowerCase().includes(search.toLowerCase()));
     const matchesTag = activeTag === "" || entry.tags.includes(activeTag);
     const matchesYear = activeYear === "" || entry.date.startsWith(activeYear);
     const matchesRange =
@@ -37,27 +38,33 @@ export default function DiaryViewer() {
   });
 
   return (
-    <div className="space-y-8">
+    <main className="max-w-4xl mx-auto px-4 py-8 space-y-10">
       <h1 className="text-3xl font-bold">90s Diary Archive</h1>
 
       {/* Search */}
-      <Input
-        placeholder="Search by artist, venue, genre..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <div className="space-y-2">
+        <h2 className="font-semibold text-lg">Search</h2>
+        <Input
+          className="w-80"
+          placeholder="Search by artist, venue, etc..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
 
       {/* Date Range Filter */}
       <div className="space-y-2">
         <h2 className="font-semibold text-lg">Filter by Date Range</h2>
-        <div className="flex gap-4">
+        <div className="flex gap-4 flex-wrap">
           <Input
             type="date"
+            className="w-60"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
           />
           <Input
             type="date"
+            className="w-60"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
           />
@@ -67,7 +74,7 @@ export default function DiaryViewer() {
       {/* Year Filter */}
       <div className="space-y-2">
         <h2 className="font-semibold text-lg">Filter by Year</h2>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-3">
           <Badge
             variant={activeYear === "" ? "default" : "outline"}
             onClick={() => setActiveYear("")}
@@ -91,7 +98,7 @@ export default function DiaryViewer() {
       {/* Tag Filter */}
       <div className="space-y-2">
         <h2 className="font-semibold text-lg">Filter by Tag</h2>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-3">
           <Badge
             variant={activeTag === "" ? "default" : "outline"}
             onClick={() => setActiveTag("")}
@@ -113,7 +120,7 @@ export default function DiaryViewer() {
       </div>
 
       {/* Diary Entries */}
-      <div className="grid gap-6">
+      <div className="grid gap-8">
         {!isFiltering ? (
           <div className="text-center text-muted-foreground mt-12">
             🔍 Start typing or filtering to see entries.
@@ -122,10 +129,10 @@ export default function DiaryViewer() {
           filteredEntries.map((entry) => (
             <Link key={entry.id} href={`/entry/${entry.id}`}>
               <Card className="hover:shadow-lg transition cursor-pointer">
-                <CardContent className="space-y-3 p-4">
+                <CardContent className="space-y-4 p-6">
                   <h2 className="text-xl font-bold">{entry.title}</h2>
                   <p className="text-sm text-muted-foreground">{entry.date} — {entry.location}</p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-3">
                     {[...entry.tags]
                       .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }))
                       .map((tag) => <Badge key={tag}>{tag}</Badge>)
@@ -136,7 +143,7 @@ export default function DiaryViewer() {
                     <a href={`/diary/${entry.id}`} className="text-blue-600 underline">Read more</a>
                   </p>
                   <div className="flex flex-wrap gap-4">
-                    {entry.images.map((src, index) => (
+                    {entry.images.map((src: string, index: number) => (
                       <DiaryImage key={index} src={src} alt={`Diary Scan ${index + 1}`} />
                     ))}
                   </div>
@@ -150,5 +157,6 @@ export default function DiaryViewer() {
           </div>
         )}
       </div>
-    </div>);
+    </main>
+  );
 }
