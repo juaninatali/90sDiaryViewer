@@ -2,19 +2,25 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, install all project dependencies:
+Install dependencies
 
 ```bash
 npm install
 ```
 
-Then run the development server:
+## Execution
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to access the app.
+
+## Content Preparation
+
+```bash
+npm run generate-entries
+```
 
 The project relies on Tailwind CSS's default sans-serif fonts. A custom `poppins`
 font family is declared in `tailwind.config.js` and expects a CSS variable
@@ -32,8 +38,8 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Project Structure
 
-/90s-diary-archive
-│
+```
+.
 ├── components                  #
 ├── content/entries/            # auto-generated JSON files
 ├── data/diary.csv              # source content file
@@ -41,10 +47,12 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 ├── logs                        # generateEntries logging
 ├── pages                       #
 ├── public/images/              # scanned diary pages
-├── scripts/generateEntries.ts  # CSV → JSON script
+├── scripts/generateEntries.ts  # content preparation script (CSV → JSON)
 ├── styles/                     #
 ├── types/                      #
 └── 
+
+```
 
 ## Deploy on Vercel
 
