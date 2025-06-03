@@ -16,7 +16,10 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The project relies on Tailwind CSS's default sans-serif fonts. A custom `poppins`
+font family is declared in `tailwind.config.js` and expects a CSS variable
+`--font-poppins` if you wish to load your own font. The app does not currently
+use `next/font`.
 
 ## Learn More
 
