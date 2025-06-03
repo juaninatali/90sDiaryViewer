@@ -1,3 +1,6 @@
+
+This repository contains a small Next.js application that displays pages from a personal Diary Archive. The project is built using TypeScript and TailwindCSS. 
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
@@ -29,12 +32,11 @@ use `next/font`.
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+Static Generation: The diary entries are generated at build time from CSV data. Each entry is stored as its own JSON file. 
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Filtering in the UI: DiaryViewer maintains state for search text, selected tags, years, and date ranges. It filters entries client‑side and shows placeholder messages when no filters are applied or no results are found.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Theme Toggle: The app relies on next-themes for dark/light themes. The component waits for client-side hydration before showing the button to avoid mismatched rendering.
 
 ## Project Structure
 
