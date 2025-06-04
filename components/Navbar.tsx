@@ -18,7 +18,7 @@ export function Navbar() {
       <nav className="flex items-center justify-between py-4">
         {mounted ? (
           pathname !== "/" ? (
-            <Link href="/" className="text-2xl font-bold text-primary">
+            <Link href="/" className="text-2xl font-bold text-primary-foreground">
               90s Diary Archive
             </Link>
           ) : (
