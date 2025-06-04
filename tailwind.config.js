@@ -4,7 +4,7 @@ module.exports = {
 	content: [
 		"./pages/**/*.{js,ts,jsx,tsx}",
 		"./components/**/*.{js,ts,jsx,tsx}",
-		"./styles/**/*.{css}" // Add this if your CSS is outside /src
+		"./styles/**/*.css" // Add this if your CSS is outside /src
 	],
 	theme: {
 		extend: {
