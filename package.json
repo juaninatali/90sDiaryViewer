@@ -8,7 +8,8 @@
     "generate-entries": "ts-node scripts/generateEntries.ts",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.0",
@@ -35,6 +36,9 @@
     "postcss": "^8.4.24",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "@types/jest": "^29.5.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.0"
   }
 }
