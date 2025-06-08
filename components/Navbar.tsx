@@ -14,11 +14,11 @@ export function Navbar() {
   }, []);
 
   return (
-    <header className="border-b mb-6">
+    <header className="sticky top-0 z-50 border-b mb-6 bg-background">
       <nav className="flex items-center justify-between py-4">
         {mounted ? (
           pathname !== "/" ? (
-            <Link href="/" className="text-2xl font-bold text-primary-foreground">
+            <Link href="/" className="text-2xl font-bold text-foreground">
               90s Diary Archive
             </Link>
           ) : (
