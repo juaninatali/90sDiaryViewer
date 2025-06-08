@@ -17,8 +17,10 @@ if (!fs.existsSync(path.dirname(LOG_FILE))) {
 
 const logStream = fs.createWriteStream(LOG_FILE, { flags: "w" });
 function log(message: string) {
-    console.log(message);
-    logStream.write(message + "\n");
+    const timestamp = new Date().toISOString();
+    const line = `[${timestamp}] ${message}`;
+    console.log(line);
+    logStream.write(line + "\n");
 }
 
 // Load CSV
