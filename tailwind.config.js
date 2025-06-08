@@ -47,10 +47,7 @@ module.exports = {
 					DEFAULT: "hsl(var(--popover))",
 					foreground: "hsl(var(--popover-foreground))",
 				},
-			},
-			fontFamily: {
-				poppins: ["var(--font-poppins)", "sans-serif"],
-			},
+			},			
 		},
 	},
 	plugins: [

@@ -25,10 +25,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to access 
 npm run generate-entries
 ```
 
-The project relies on Tailwind CSS's default sans-serif fonts. A custom `poppins`
-font family is declared in `tailwind.config.js` and expects a CSS variable
-`--font-poppins` if you wish to load your own font. The app does not currently
-use `next/font`.
+The project relies on Tailwind CSS's default sans-serif fonts. The app does not currently use `next/font`.
 
 ## Learn More
 
