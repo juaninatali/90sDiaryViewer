@@ -142,10 +142,15 @@ export default function DiaryViewer({ entries }: { entries: DiaryEntry[] }) {
                     {truncate(entry.text, 150)}{" "}
                     <span className="text-blue-600 underline">Read more</span>
                   </p>
-                  <div className="flex flex-wrap gap-4">
-                    {entry.images.map((src: string, index: number) => (
+                  <div className="flex flex-wrap gap-4 items-center">
+                    {entry.images.slice(0, 3).map((src: string, index: number) => (
                       <DiaryImage key={index} src={src} alt={`Diary Scan ${index + 1}`} />
                     ))}
+                    {entry.images.length > 3 && (
+                      <div className="w-48 h-[auto] flex items-center justify-center bg-black bg-opacity-60 text-white text-xl font-bold rounded border border-gray-400">
+                        +{entry.images.length - 3} more
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
