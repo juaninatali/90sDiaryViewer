@@ -50,7 +50,6 @@ Theme Toggle: The app relies on next-themes for dark/light themes. The component
 ├── styles                      #
 ├── types                       #
 └── 
-
 ```
 
 ## Deploy on Vercel

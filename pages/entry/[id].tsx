@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DiaryEntry } from "@/types/diary";
 import { GetStaticPropsContext } from "next";
-
+import { useState } from "react";
 
 type EntryPageProps = {
     entry: DiaryEntry;
@@ -23,6 +23,9 @@ export async function getStaticProps(context: GetStaticPropsContext) {
 }
 
 export default function EntryPage({ entry }: EntryPageProps) {
+    const [expanded, setExpanded] = useState(false);
+    const visibleImages = expanded ? entry.images : entry.images.slice(0, 3);
+
     return (
         <Layout>
             <Card>
@@ -33,11 +36,21 @@ export default function EntryPage({ entry }: EntryPageProps) {
                         {entry.tags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
                     </div>
                     <p className="whitespace-pre-wrap">{entry.text}</p>
+
                     <div className="flex flex-wrap gap-4">
-                        {entry.images.map((src, index) => (
+                        {visibleImages.map((src, index) => (
                             <DiaryImage key={index} src={src} alt={`Diary Scan ${index + 1}`} />
                         ))}
                     </div>
+
+                    {entry.images.length > 3 && (
+                        <button
+                            onClick={() => setExpanded(!expanded)}
+                            className="mt-4 text-blue-600 underline text-sm"
+                        >
+                            {expanded ? "Show Less" : "View All Images"}
+                        </button>
+                    )}
                 </CardContent>
             </Card>
         </Layout>

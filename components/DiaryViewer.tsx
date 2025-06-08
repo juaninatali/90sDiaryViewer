@@ -140,7 +140,7 @@ export default function DiaryViewer({ entries }: { entries: DiaryEntry[] }) {
                   </div>
                   <p className="whitespace-pre-wrap text-muted-foreground">
                     {truncate(entry.text, 150)}{" "}
-                    <a href={`/entry/${entry.id}`} className="text-blue-600 underline">Read more</a>
+                    <span className="text-blue-600 underline">Read more</span>
                   </p>
                   <div className="flex flex-wrap gap-4">
                     {entry.images.map((src: string, index: number) => (
