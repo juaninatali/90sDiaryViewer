@@ -131,7 +131,7 @@ export default function DiaryViewer({ entries }: { entries: DiaryEntry[] }) {
               <Card className="hover:shadow-lg transition cursor-pointer">
                 <CardContent className="space-y-4 p-6">
                   <h2 className="text-xl font-bold">{entry.title}</h2>
-                  <p className="text-sm text-muted-foreground">{entry.date} — {entry.location}</p>
+                  <p className="text-sm text-muted-foreground">{entry.date} - {entry.location}</p>
                   <div className="flex flex-wrap gap-3">
                     {[...entry.tags]
                       .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }))

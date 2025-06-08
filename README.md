@@ -39,16 +39,16 @@ Theme Toggle: The app relies on next-themes for dark/light themes. The component
 
 ```
 .
-├── components                  #
+├── components                  
 ├── content/entries/            # auto-generated JSON files
 ├── data/diary.csv              # source content file
 ├── lib/entries.ts              # app entry loader
 ├── logs                        # generateEntries logging
-├── pages                       #
+├── pages                       
 ├── public/images/              # scanned diary pages
 ├── scripts/generateEntries.ts  # content preparation script (CSV → JSON)
-├── styles/                     #
-├── types/                      #
+├── styles                      #
+├── types                       #
 └── 
 
 ```
