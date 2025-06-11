@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { DiaryEntry } from "@/types/diary";
 import { GetStaticPropsContext } from "next";
 import { useState } from "react";
+import { formatDate } from "@/lib/utils";
 
 type EntryPageProps = {
     entry: DiaryEntry;
@@ -31,7 +32,7 @@ export default function EntryPage({ entry }: EntryPageProps) {
             <Card>
                 <CardContent className="space-y-4 p-6">
                     <h1 className="text-3xl font-bold">{entry.title}</h1>
-                    <p className="text-sm text-muted-foreground">{entry.date} - {entry.location}</p>
+                    <p className="text-sm text-muted-foreground">{formatDate(entry.date)} - {entry.location}</p>
                     <div className="flex flex-wrap gap-2">
                         {entry.tags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
                     </div>

@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { DiaryImage } from "@/components/DiaryImage";
-import Link from "next/link";
 import { DiaryEntry } from "@/types/diary";
+import { Input } from "@/components/ui/input";
+import { formatDate } from "@/lib/utils";
+import Link from "next/link";
 
 function truncate(text: string, length: number): string {
   return text.length > length
@@ -18,6 +20,14 @@ export default function DiaryViewer({ entries }: { entries: DiaryEntry[] }) {
   const [activeYear, setActiveYear] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  function clearAllFilters() {
+    setSearch("");
+    setActiveTag("");
+    setActiveYear("");
+    setStartDate("");
+    setEndDate("");
+  }
 
   const isFiltering = search !== "" || activeTag !== "" || activeYear !== "" || startDate !== "" || endDate !== "";
   const allTags = Array.from(new Set(entries.flatMap(entry => entry.tags)))
@@ -119,6 +129,15 @@ export default function DiaryViewer({ entries }: { entries: DiaryEntry[] }) {
         </div>
       </div>
 
+      {/* Clear All Filters Button */}
+      {isFiltering && (
+        <div className="mt-2">
+          <Button variant="outline" onClick={clearAllFilters}>
+            Clear All Filters
+          </Button>
+        </div>
+      )}
+
       {/* Diary Entries */}
       <div className="grid gap-8">
         {!isFiltering ? (
@@ -131,7 +150,7 @@ export default function DiaryViewer({ entries }: { entries: DiaryEntry[] }) {
               <Card className="hover:shadow-lg transition cursor-pointer">
                 <CardContent className="space-y-4 p-6">
                   <h2 className="text-xl font-bold">{entry.title}</h2>
-                  <p className="text-sm text-muted-foreground">{entry.date} - {entry.location}</p>
+                  <p className="text-sm text-muted-foreground">{formatDate(entry.date)} - {entry.location}</p>
                   <div className="flex flex-wrap gap-3">
                     {[...entry.tags]
                       .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }))
