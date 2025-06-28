@@ -18,18 +18,24 @@ export default function DiaryViewer({ entries }: { entries: DiaryEntry[] }) {
   const [search, setSearch] = useState("");
   const [activeTag, setActiveTag] = useState("");
   const [activeYear, setActiveYear] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const defaultDate = "1992-01-01";
+  const [startDate, setStartDate] = useState(defaultDate);
+  const [endDate, setEndDate] = useState(defaultDate);
 
   function clearAllFilters() {
     setSearch("");
     setActiveTag("");
     setActiveYear("");
-    setStartDate("");
-    setEndDate("");
+    setStartDate(defaultDate);
+    setEndDate(defaultDate);
   }
 
-  const isFiltering = search !== "" || activeTag !== "" || activeYear !== "" || startDate !== "" || endDate !== "";
+  const isFiltering =
+    search !== "" ||
+    activeTag !== "" ||
+    activeYear !== "" ||
+    startDate !== defaultDate ||
+    endDate !== defaultDate;
   const allTags = Array.from(new Set(entries.flatMap(entry => entry.tags)))
     .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
   const allYears = Array.from(new Set(entries.map(entry => entry.date.slice(0, 4))))
@@ -42,8 +48,8 @@ export default function DiaryViewer({ entries }: { entries: DiaryEntry[] }) {
     const matchesTag = activeTag === "" || entry.tags.includes(activeTag);
     const matchesYear = activeYear === "" || entry.date.startsWith(activeYear);
     const matchesRange =
-      (!startDate || entry.date >= startDate) &&
-      (!endDate || entry.date <= endDate);
+      (!startDate || startDate === defaultDate || entry.date >= startDate) &&
+      (!endDate || endDate === defaultDate || entry.date <= endDate);
     return matchesSearch && matchesTag && matchesYear && matchesRange;
   });
 

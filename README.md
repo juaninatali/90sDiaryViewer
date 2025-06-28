@@ -3,6 +3,8 @@ This repository contains a small Next.js application that displays pages from a 
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+The project relies on Tailwind CSS's default sans-serif fonts. The app does not currently use `next/font`.
+
 ## Getting Started
 
 Install dependencies
@@ -25,7 +27,11 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to access 
 npm run generate-entries
 ```
 
-The project relies on Tailwind CSS's default sans-serif fonts. The app does not currently use `next/font`.
+To run unit tests for the entry-loading functions
+
+```bash
+npm run test
+```
 
 ## Learn More
 
