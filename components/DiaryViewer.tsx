@@ -49,7 +49,6 @@ export default function DiaryViewer({ entries }: { entries: DiaryEntry[] }) {
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-8 space-y-10">
-      <h1 className="text-3xl font-bold">90s Diary Archive</h1>
 
       {/* Search */}
       <div className="space-y-2">

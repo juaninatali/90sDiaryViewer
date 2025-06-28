@@ -29,7 +29,7 @@ export default function EntryPage({ entry }: EntryPageProps) {
 
     return (
         <Layout>
-            <Card>
+            <Card className="bg-card text-card-foreground">
                 <CardContent className="space-y-4 p-6">
                     <h1 className="text-3xl font-bold">{entry.title}</h1>
                     <p className="text-sm text-muted-foreground">{formatDate(entry.date)} - {entry.location}</p>
