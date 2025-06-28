@@ -30,5 +30,7 @@
 .dark {
   --background: 0 0% 3.9%;
   --foreground: 0 0% 98%;
+  --card: 0 0% 3.9%;           /* Dark card background */
+  --card-foreground: 0 0% 98%; /* Text color on dark card */
   /* Dark mode overrides */
 }
