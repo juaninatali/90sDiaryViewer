@@ -23,11 +23,13 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to access 
 
 ## Content Preparation
 
+Convert a data/diary.csv file into JSON files and validate referenced images
+
 ```bash
 npm run generate-entries
 ```
 
-To run unit tests for the entry-loading functions
+Run unit tests for the entry-loading functions
 
 ```bash
 npm run test
@@ -37,7 +39,7 @@ npm run test
 
 Static Generation: The diary entries are generated at build time from CSV data. Each entry is stored as its own JSON file. 
 
-Filtering in the UI: DiaryViewer maintains state for search text, selected tags, years, and date ranges. It filters entries client‑side and shows placeholder messages when no filters are applied or no results are found.
+Filtering in the UI: DiaryViewer maintains state for search text, selected tags, years, and date ranges. It filters entries client‑side and shows placeholder messages when no filters are applied, or no results are found.
 
 Theme Toggle: The app relies on next-themes for dark/light themes. The component waits for client-side hydration before showing the button to avoid mismatched rendering.
 
