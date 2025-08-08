@@ -10,7 +10,14 @@ describe('entries library', () => {
     return filenames.map((file) => {
       const filePath = path.join(entriesDir, file);
       const contents = fs.readFileSync(filePath, 'utf8');
-      return JSON.parse(contents);
+      const entry = JSON.parse(contents);
+      if (entry.images) {
+        entry.images = entry.images.map((img: string) => {
+          const cleaned = img.replace(/^(?:\/?images\/)+/, '');
+          return `/images/${cleaned}`;
+        });
+      }
+      return entry;
     });
   }
 

@@ -3,14 +3,18 @@ import { useEffect, useState } from "react";
 export function DiaryImage({ src, alt }: { src: string; alt: string }) {
   const [error, setError] = useState(false);
 
+  const normalizedSrc = src.startsWith("/")
+    ? src
+    : `/images/${src.replace(/^(?:images\/)+/, "")}`;
+
   useEffect(() => {
     setError(false);
-  }, [src]);
+  }, [normalizedSrc]);
 
   return (
     <div className="w-48">
       <img
-        src={error ? "/images/placeholder.png" : src}
+        src={error ? "/images/placeholder.png" : normalizedSrc}
         alt={alt}
         onError={() => setError(true)}
         className="w-72 h-auto border border-border rounded-md"
