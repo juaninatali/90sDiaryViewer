@@ -1,8 +1,11 @@
-import * as React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export function DiaryImage({ src, alt }: { src: string; alt: string }) {
   const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setError(false);
+  }, [src]);
 
   return (
     <div className="w-48">
