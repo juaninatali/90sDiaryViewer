@@ -24,9 +24,9 @@ function log(message: string) {
 }
 
 // Load CSV
-const csvData = fs.readFileSync(INPUT_CSV, "utf8");
+const csvData = fs.readFileSync(INPUT_CSV, "utf8").replace(/^\uFEFF/, "");
 const records = parse(csvData, {
-    columns: true,
+    columns: ["id", "date", "title", "location", "tags", "text", "images"],
     skip_empty_lines: true,
 });
 
@@ -37,7 +37,7 @@ for (const record of records) {
     const id = record.id?.trim();
     const title = record.title?.trim();
     const date = record.date?.trim();
-    const text = record.text;
+    const text = record.text?.replace(/\\n/g, "\n");
     const imageFilenames = record.images?.split(";").map((img: string) => img.trim());
 
     // Validation
@@ -56,7 +56,7 @@ for (const record of records) {
 
     // Check if images exist (in /public/images)
     const missingImages = imageFilenames?.filter((filename: string) => {
-        const imagePath = path.join(__dirname, `../public/images/${filename}`);
+        const imagePath = path.join(__dirname, "../public/images", filename.replace(/^\/images\//, ""));
         return !fs.existsSync(imagePath);
     }) || [];
 
