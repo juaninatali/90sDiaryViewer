@@ -10,6 +10,12 @@ export function getAllEntries() {
         const fileContents = fs.readFileSync(filePath, 'utf8');
         const entry = JSON.parse(fileContents);
         entry.text = entry.text.replace(/\\n/g, '\n');
+        if (entry.images) {
+            entry.images = entry.images.map((img: string) => {
+                const cleaned = img.replace(/^(?:\/?images\/)+/, '');
+                return `/images/${cleaned}`;
+            });
+        }
         return entry;
     });
 }
@@ -20,6 +26,12 @@ export function getEntryById(id: string) {
     const fileContents = fs.readFileSync(filePath, 'utf8');
     const entry = JSON.parse(fileContents);
     entry.text = entry.text.replace(/\\n/g, '\n');
+    if (entry.images) {
+        entry.images = entry.images.map((img: string) => {
+            const cleaned = img.replace(/^(?:\/?images\/)+/, '');
+            return `/images/${cleaned}`;
+        });
+    }
     return entry;
 }
 
