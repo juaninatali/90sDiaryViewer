@@ -38,7 +38,12 @@ for (const record of records) {
     const title = record.title?.trim();
     const date = record.date?.trim();
     const text = record.text?.replace(/\\n/g, "\n");
-    const imageFilenames = record.images?.split(";").map((img: string) => img.trim());
+    const imageFilenames = record.images
+        ? record.images
+              .split(";")
+              .map((img: string) => img.trim())
+              .filter((img: string) => img !== "")
+        : [];
 
     // Validation
     if (!id) {
@@ -55,10 +60,10 @@ for (const record of records) {
     }
 
     // Check if images exist (in /public/images)
-    const missingImages = imageFilenames?.filter((filename: string) => {
+    const missingImages = imageFilenames.filter((filename: string) => {
         const imagePath = path.join(__dirname, "../public/images", filename.replace(/^\/images\//, ""));
         return !fs.existsSync(imagePath);
-    }) || [];
+    });
 
     if (missingImages.length > 0) {
         log(`⚠️ Entry ${id} references missing image(s): ${missingImages.join(", ")}`);
@@ -71,7 +76,7 @@ for (const record of records) {
         location: record.location?.trim() || "",
         tags: record.tags?.split(";").map((tag: string) => tag.trim()) || [],
         text: text.replace(/\r?\n/g, "\\n"),
-        images: imageFilenames?.map((img: string) => "/images/" + img) || [],
+        images: imageFilenames.map((img: string) => "/images/" + img),
     };
 
     const outputPath = path.join(OUTPUT_DIR, `${id}.json`);
