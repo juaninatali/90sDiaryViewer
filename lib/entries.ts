@@ -8,7 +8,9 @@ export function getAllEntries() {
     return filenames.map((filename) => {
         const filePath = path.join(entriesDir, filename);
         const fileContents = fs.readFileSync(filePath, 'utf8');
-        return JSON.parse(fileContents);
+        const entry = JSON.parse(fileContents);
+        entry.text = entry.text.replace(/\\n/g, '\n');
+        return entry;
     });
 }
 
@@ -16,7 +18,9 @@ export function getEntryById(id: string) {
     const filePath = path.join(entriesDir, `${id}.json`);
     if (!fs.existsSync(filePath)) return null;
     const fileContents = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(fileContents);
+    const entry = JSON.parse(fileContents);
+    entry.text = entry.text.replace(/\\n/g, '\n');
+    return entry;
 }
 
 export function getAllEntryIds() {

@@ -75,7 +75,7 @@ for (const record of records) {
         date,
         location: record.location?.trim() || "",
         tags: record.tags?.split(";").map((tag: string) => tag.trim()) || [],
-        text: text.replace(/\r?\n/g, "\\n"),
+        text,
         images: imageFilenames.map((img: string) => "/images/" + img),
     };
 
