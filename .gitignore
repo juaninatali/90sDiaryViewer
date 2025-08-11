@@ -10,20 +10,6 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
 # debug
 npm-debug.log*
 yarn-debug.log*
@@ -33,10 +19,40 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
-# vercel
-.vercel
+# misc
+.DS_Store
+*.pem
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# testing
+/coverage
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 logs/generation.log
+
+# vercel
+.vercel
+
+# Content - Image files
+/public/images/*
+!public/images/placeholder.png
+!public/images/1995-Fellini01.jpg
+!public/images/1995-Fellini02.jpg
+!public/images/TheFirstReport_037a.png
+!public/images/TheFirstReport_037b.png
+!public/images/TheFirstReport_072a.png
+!public/images/TheFirstReport_072b.png
+
+# Content - JSON Entries
+/content/entries/*
+!content/entries/001.json
+!content/entries/002.json
+
