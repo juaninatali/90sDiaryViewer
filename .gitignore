@@ -43,6 +43,7 @@ logs/generation.log
 
 # Content - Image files
 /public/images/*
+!public/images/
 !public/images/placeholder.png
 !public/images/1995-Fellini01.jpg
 !public/images/1995-Fellini02.jpg
@@ -53,6 +54,7 @@ logs/generation.log
 
 # Content - JSON Entries
 /content/entries/*
+!content/entries/
 !content/entries/001.json
 !content/entries/002.json
 
