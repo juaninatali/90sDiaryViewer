@@ -45,6 +45,7 @@ logs/generation.log
 /public/images/*
 !public/images/
 !public/images/placeholder.png
+!public/images/banner.jpg
 !public/images/1995-Fellini01.jpg
 !public/images/1995-Fellini02.jpg
 !public/images/TheFirstReport_037a.png
