@@ -15,10 +15,14 @@ type DiaryViewerProps = {
   initialQuery?: ParsedUrlQuery; // <-- add this
 };
 
-function truncate(text: string, length: number): string {
-  return text.length > length
-    ? text.slice(0, text.lastIndexOf("", length)) + "..."
-    : text;
+export function truncate(text: string, length: number): string {
+  if (text.length <= length) {
+    return text;
+  }
+
+  const lastSpace = text.lastIndexOf(" ", length);
+  const end = lastSpace === -1 ? length : lastSpace;
+  return text.slice(0, end) + "...";
 }
 
 export default function DiaryViewer({ entries, initialQuery }: DiaryViewerProps) {
