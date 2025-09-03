@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
 export function Navbar() {
-  const pathname = usePathname();
+  const router = useRouter();
+  const pathname = router.pathname;
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

@@ -250,7 +250,7 @@ export default function DiaryViewer({ entries, initialQuery }: DiaryViewerProps)
       <div className="grid gap-8">
         {!isFiltering ? (
           <div className="text-center text-muted-foreground mt-12">
-            🔍 Start typing or filtering to see entries.
+            Start typing or filtering to see entries.
           </div>
         ) : filteredEntries.length > 0 ? (
           filteredEntries.map((entry) => (
@@ -287,7 +287,7 @@ export default function DiaryViewer({ entries, initialQuery }: DiaryViewerProps)
             </Link>
           ))
         ) : (
-          <div className="text-center text-muted-foreground mt-12">❌ No results found.</div>
+          <div className="text-center text-muted-foreground mt-12">No results found.</div>
         )}
       </div>
     </main>
