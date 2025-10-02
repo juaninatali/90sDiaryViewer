@@ -13,8 +13,11 @@ type EntryPageProps = {
 };
 
 export async function getStaticPaths() {
-    const paths = getAllEntryIds();
-    return { paths, fallback: false };
+  const paths = getAllEntryIds();
+  return {
+    paths,
+    fallback: 'blocking', // prevents 404 for valid IDs not in the prebuilt list
+  };
 }
 
 export async function getStaticProps(context: GetStaticPropsContext) {
