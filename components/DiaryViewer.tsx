@@ -10,6 +10,12 @@ import { useRouter } from "next/router";
 const DEFAULT_START_DATE = "1995-01-01";
 const DEFAULT_END_DATE = "1995-12-31";
 
+const TAG_GROUPS = [
+  { prefix: "Artist", title: "Artist tags" },
+  { prefix: "Genre", title: "Genre tags" },
+  { prefix: "Venue", title: "Venue tags" },
+];
+
 type SearchItem = {
   id: string;
   title: string;
@@ -98,18 +104,49 @@ export default function DiaryViewer() {
     setOffset(0);
   }
 
-  // Derive “available tags/years” from the current page (cheap + good UX).
-  const allTags = useMemo(() => {
-    const s = new Set<string>();
-    items.forEach(e => e.tags.forEach(t => s.add(t)));
-    return Array.from(s).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
-  }, [items]);
+  const groupedFacetTags = useMemo(() => {
+    type Group = { title: string; tags: Array<{ tag: string; count: number; label: string }> };
+    const base: Group[] = TAG_GROUPS.map(group => ({ title: group.title, tags: [] }));
+    const other: Group = { title: "Other tags", tags: [] };
 
-  const allYears = useMemo(() => {
-    const s = new Set<string>();
-    items.forEach(e => s.add(e.date.slice(0, 4)));
-    return Array.from(s).sort();
-  }, [items]);
+    facetTags.forEach(entry => {
+      const [rawPrefix, ...restParts] = entry.tag.split(":");
+      const prefix = rawPrefix?.trim();
+      const label = restParts.join(":").trim() || entry.tag;
+      const bucket = TAG_GROUPS.find(group => group.prefix === prefix)
+        ? base[TAG_GROUPS.findIndex(group => group.prefix === prefix)]
+        : other;
+      bucket.tags.push({ ...entry, label });
+    });
+
+    base.forEach(group =>
+      group.tags.sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: "base" }))
+    );
+    other.tags.sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: "base" }));
+
+    return [...base.filter(group => group.tags.length > 0), ...(other.tags.length ? [other] : [])];
+  }, [facetTags]);
+
+  const sortedFacetTags = useMemo(() => {
+    const buckets: Record<string, { tag: string; count: number }[]> = {
+      Artist: [],
+      Genre: [],
+      Venue: [],
+      Other: [],
+    };
+    const bucketKeys: Array<keyof typeof buckets> = ["Artist", "Genre", "Venue", "Other"];
+    const alpha = (a: { tag: string }, b: { tag: string }) =>
+      a.tag.localeCompare(b.tag, undefined, { sensitivity: "base" });
+
+    facetTags.forEach(entry => {
+      const [rawPrefix] = entry.tag.split(":");
+      const prefix = rawPrefix?.trim();
+      const key = prefix && Object.hasOwn(buckets, prefix) ? (prefix as keyof typeof buckets) : "Other";
+      buckets[key].push(entry);
+    });
+
+    return bucketKeys.flatMap(key => buckets[key].sort(alpha));
+  }, [facetTags]);
 
   // Keep URL in sync so filters are shareable.
   useEffect(() => {
@@ -122,7 +159,7 @@ export default function DiaryViewer() {
     if (offset) q.offset = String(offset);
     if (limit !== 24) q.limit = String(limit);
 
-    router.replace({ pathname: "/search", query: q }, undefined, { shallow: true });    
+    router.replace({ pathname: "/search", query: q }, undefined, { shallow: true });
   }, [search, activeTag, activeYear, startDate, endDate, offset, limit]);
 
   // Fetch when filters/paging change.
@@ -249,7 +286,7 @@ export default function DiaryViewer() {
             >
               All
             </Badge>
-            {facetTags.map(({ tag, count }) => (
+            {sortedFacetTags.map(({ tag, count }) => (
               <Badge
                 key={tag}
                 variant={activeTag === tag ? "default" : "outline"}
