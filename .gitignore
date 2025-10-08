@@ -46,16 +46,7 @@ logs/generation.log
 !public/images/
 !public/images/placeholder.png
 !public/images/banner.jpg
-!public/images/1995-Fellini01.jpg
-!public/images/1995-Fellini02.jpg
-!public/images/TheFirstReport_037a.png
-!public/images/TheFirstReport_037b.png
-!public/images/TheFirstReport_072a.png
-!public/images/TheFirstReport_072b.png
 
 # Content - JSON Entries
 /content/entries/*
 !content/entries/
-!content/entries/001.json
-!content/entries/002.json
-
