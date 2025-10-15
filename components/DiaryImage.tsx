@@ -12,12 +12,12 @@ export function DiaryImage({ src, alt }: { src: string; alt: string }) {
   }, [normalizedSrc]);
 
   return (
-    <div className="w-48">
+    <div className="w-full sm:w-auto">
       <img
         src={error ? "/images/placeholder.png" : normalizedSrc}
         alt={alt}
         onError={() => setError(true)}
-        className="w-72 h-auto border border-border rounded-md"
+        className="w-full sm:w-40 h-auto border border-border rounded-md"
         // style={{ width: "300px", height: "auto", border: "1px solid red" }} // forcing inline style
       />
     </div>

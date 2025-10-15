@@ -27,8 +27,16 @@ export function ThemeToggle() {
     <Button
       variant="outline"
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      aria-label={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
     >
-      {theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+      {/* Full label on sm+ */}
+      <span className="hidden sm:inline">
+        {theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+      </span>
+      {/* Icon-only on xs */}
+      <span className="inline sm:hidden" aria-hidden="true">
+        {theme === "dark" ? "☀️" : "🌙"}
+      </span>
     </Button>
   );
 }

@@ -34,3 +34,8 @@
   --card-foreground: 0 0% 98%; /* Text color on dark card */
   /* Dark mode overrides */
 }
+
+/* Normalize date input picker: hide native icon but keep click area */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+}

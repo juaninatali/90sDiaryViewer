@@ -89,7 +89,7 @@ export default function DiaryViewer() {
     typeof router.query.offset === "string" ? parseInt(router.query.offset, 10) || 0 : 0
   );
   const [limit, setLimit] = useState<number>(
-    typeof router.query.limit === "string" ? Math.min(100, parseInt(router.query.limit, 10) || 24) : 24
+    typeof router.query.limit === "string" ? Math.min(100, parseInt(router.query.limit, 10) || 12) : 12
   );
 
   const isFiltering =
@@ -157,7 +157,7 @@ export default function DiaryViewer() {
     if (startDate) q.startDate = startDate;
     if (endDate) q.endDate = endDate;
     if (offset) q.offset = String(offset);
-    if (limit !== 24) q.limit = String(limit);
+    if (limit !== 12) q.limit = String(limit);
 
     router.replace({ pathname: "/search", query: q }, undefined, { shallow: true });
   }, [search, activeTag, activeYear, startDate, endDate, offset, limit]);
@@ -205,48 +205,72 @@ export default function DiaryViewer() {
           onChange={(e) => { setSearch(e.target.value); setOffset(0); }}
           className="sm:max-w-md"
         />
-        <div className="flex gap-3">
-          <Input
-            type="date"
-            value={draftStartDate}
-            max={draftEndDate || undefined}
-            onFocus={() => {
-              if (!datesPrimed) {
-                setDraftStartDate(DEFAULT_START_DATE);
-                setDraftEndDate(DEFAULT_END_DATE);
-                setDatesPrimed(true);
-              }
-            }}
-            onChange={(e) => {
-              const v = e.target.value;
-              setDraftStartDate(v);
-              setStartDate(v);     // apply filter only when the user selects a date
-              setOffset(0);
-            }}
-            aria-label="Start date"
-          />
-          <Input
-            type="date"
-            value={draftEndDate}
-            min={draftStartDate || undefined}
-            onFocus={() => {
-              if (!datesPrimed) {
-                setDraftStartDate(DEFAULT_START_DATE);
-                setDraftEndDate(DEFAULT_END_DATE);
-                setDatesPrimed(true);
-              }
-            }}
-            onChange={(e) => {
-              const v = e.target.value;
-              setDraftEndDate(v);
-              setEndDate(v);       // apply filter only when the user selects a date
-              setOffset(0);
-            }}
-            aria-label="End date"
-          />
+        <div className="flex flex-wrap sm:flex-nowrap gap-3 w-full sm:w-auto sm:flex-none">
+          <div className="relative">
+            <Input
+              type="date"
+              value={draftStartDate}
+              max={draftEndDate || undefined}
+              onFocus={() => {
+                if (!datesPrimed) {
+                  setDraftStartDate(DEFAULT_START_DATE);
+                  setDraftEndDate(DEFAULT_END_DATE);
+                  setDatesPrimed(true);
+                }
+              }}
+              onChange={(e) => {
+                const v = e.target.value;
+                setDraftStartDate(v);
+                setStartDate(v);     // apply filter only when the user selects a date
+                setOffset(0);
+              }}
+              aria-label="Start date"
+              className="w-[10rem] sm:w-[10rem] md:w-[11rem] lg:w-[12rem] sm:flex-none pr-9"
+            />
+            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </span>
+          </div>
+          <div className="relative">
+            <Input
+              type="date"
+              value={draftEndDate}
+              min={draftStartDate || undefined}
+              onFocus={() => {
+                if (!datesPrimed) {
+                  setDraftStartDate(DEFAULT_START_DATE);
+                  setDraftEndDate(DEFAULT_END_DATE);
+                  setDatesPrimed(true);
+                }
+              }}
+              onChange={(e) => {
+                const v = e.target.value;
+                setDraftEndDate(v);
+                setEndDate(v);       // apply filter only when the user selects a date
+                setOffset(0);
+              }}
+              aria-label="End date"
+              className="w-[10rem] sm:w-[10rem] md:w-[11rem] lg:w-[12rem] sm:flex-none pr-9"
+            />
+            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </span>
+          </div>
 
         </div>
-        <Button variant="outline" onClick={clearAllFilters}>Clear filters</Button>
+        <Button variant="outline" onClick={clearAllFilters} className="whitespace-nowrap">
+          Clear filters
+        </Button>
       </div>
 
       {facetYears.length > 0 && (
