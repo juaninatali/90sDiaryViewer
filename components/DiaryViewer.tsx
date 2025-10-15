@@ -73,6 +73,7 @@ export default function DiaryViewer() {
 
   // prime both inputs with 1995 range on first interaction, not on load
   const [datesPrimed, setDatesPrimed] = useState<boolean>(false);
+  const [showAllTags, setShowAllTags] = useState<boolean>(false);
 
   useEffect(() => {
     if (startDate && endDate && endDate < startDate) {
@@ -301,7 +302,16 @@ export default function DiaryViewer() {
 
       {facetTags.length > 0 && (
         <div className="space-y-2">
-          <h2 className="font-semibold text-lg">Filter by Tag</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold text-lg">Filter by Tag</h2>
+            <Button
+              variant="outline"
+              className="h-8 px-2 text-xs"
+              onClick={() => setShowAllTags((v) => !v)}
+            >
+              {showAllTags ? "Show fewer tags" : "Show all tags"}
+            </Button>
+          </div>
           <div className="flex flex-wrap gap-2">
             <Badge
               variant={activeTag === "" ? "default" : "outline"}
@@ -310,7 +320,7 @@ export default function DiaryViewer() {
             >
               All
             </Badge>
-            {sortedFacetTags.map(({ tag, count }) => (
+            {(showAllTags ? sortedFacetTags : sortedFacetTags.filter(({ count }) => count > 1)).map(({ tag, count }) => (
               <Badge
                 key={tag}
                 variant={activeTag === tag ? "default" : "outline"}
