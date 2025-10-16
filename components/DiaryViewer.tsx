@@ -26,11 +26,11 @@ type SearchItem = {
   excerpt: string;   // short preview
 };
 
-function truncate(text: string, length: number): string {
+export function truncate(text: string, length: number): string {
   if (!text) return "";
   if (text.length <= length) return text;
   const cut = text.lastIndexOf(" ", length);
-  return (cut > length * 0.6 ? text.slice(0, cut) : text.slice(0, length)) + "…";
+  return (cut > length * 0.6 ? text.slice(0, cut) : text.slice(0, length)) + "...";
 }
 
 export default function DiaryViewer() {
