@@ -34,6 +34,11 @@ export function Navbar() {
               Search
             </Link>
           )}
+          {mounted && pathname !== "/gallery" && (
+            <Link href="/gallery" className="text-sm font-medium hover:underline">
+              Gallery
+            </Link>
+          )}
         </div>
       </nav>
     </header>

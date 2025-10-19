@@ -306,7 +306,7 @@ export default function DiaryViewer() {
             <h2 className="font-semibold text-lg">Filter by Tag</h2>
             <Button
               variant="outline"
-              className="h-8 px-2 text-xs"
+              className="whitespace-nowrap"
               onClick={() => setShowAllTags((v) => !v)}
             >
               {showAllTags ? "Show fewer tags" : "Show all tags"}

@@ -13,16 +13,19 @@ type EntryPageProps = {
 };
 
 export async function getStaticPaths() {
-  const paths = getAllEntryIds();
-  return {
-    paths,
-    fallback: 'blocking', // prevents 404 for valid IDs not in the prebuilt list
-  };
+    const paths = getAllEntryIds();
+    return {
+        paths,
+        fallback: 'blocking', // prevents 404 for valid IDs not in the prebuilt list
+    };
 }
 
 export async function getStaticProps(context: GetStaticPropsContext) {
     const { params } = context;
     const entry = getEntryById(params?.id as string);
+    if (!entry) {
+        return { notFound: true };
+    }
     return { props: { entry } };
 }
 
@@ -60,3 +63,4 @@ export default function EntryPage({ entry }: EntryPageProps) {
         </Layout>
     );
 }
+
