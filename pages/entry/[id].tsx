@@ -55,7 +55,7 @@ export default function EntryPage({ entry }: EntryPageProps) {
                             onClick={() => setExpanded(!expanded)}
                             className="mt-4 text-blue-600 underline text-sm"
                         >
-                            {expanded ? "Show Less" : "View All Images"}
+                            {expanded ? "Show Fewer" : "View All Images"}
                         </button>
                     )}
                 </CardContent>
