@@ -1,7 +1,7 @@
 
 This repository contains a small Next.js application that displays pages from a personal Diary Archive. The project is built using TypeScript and TailwindCSS. 
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+The app uses the pages directory (Next.js Pages Router) with a custom _app.tsx that wraps pages in a theme provider.
 
 The project relies on Tailwind CSS's default sans-serif fonts. The app does not currently use `next/font`.
 
@@ -60,8 +60,6 @@ Theme Toggle: The app relies on next-themes for dark/light themes. The component
 
 ```
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deployment
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

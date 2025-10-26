@@ -201,7 +201,7 @@ export default function DiaryViewer() {
       {/* Search box */}
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
         <Input
-          placeholder="Search text or tagsâ€¦"
+          placeholder="Search text or tags..."
           value={search}
           onChange={(e) => { setSearch(e.target.value); setOffset(0); }}
           className="sm:max-w-md"
