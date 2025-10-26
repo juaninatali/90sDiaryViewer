@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -201,7 +201,7 @@ export default function DiaryViewer() {
       {/* Search box */}
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
         <Input
-          placeholder="Search text or tags…"
+          placeholder="Search text or tagsâ€¦"
           value={search}
           onChange={(e) => { setSearch(e.target.value); setOffset(0); }}
           className="sm:max-w-md"
@@ -339,7 +339,7 @@ export default function DiaryViewer() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {loading ? (
           <div className="col-span-full text-center text-muted-foreground mt-12">
-            Loading…
+            Loading...
           </div>
         ) : items.length > 0 ? (
           items.map((entry) => (
@@ -352,7 +352,7 @@ export default function DiaryViewer() {
                 <CardContent className="space-y-4 p-6">
                   <h2 className="text-xl font-bold">{entry.title}</h2>
                   <p className="text-sm text-muted-foreground">
-                    {formatDate(entry.date)}{entry.location ? ` • ${entry.location}` : ""}
+                    {formatDate(entry.date)}{entry.location ? ` - ${entry.location}` : ""}
                   </p>
 
                   {/* tags */}
@@ -388,7 +388,7 @@ export default function DiaryViewer() {
           ))
         ) : (
           <div className="col-span-full text-center text-muted-foreground mt-12">
-            ❌ No results found.
+            No results found.
           </div>
         )}
       </div>
@@ -404,9 +404,9 @@ export default function DiaryViewer() {
         </Button>
         <span className="text-sm text-muted-foreground">
           {total === 0
-            ? "0–0 of 0"
-            : `${Math.min(offset + 1, total)}–${Math.min(offset + items.length, total)} of ${total}`}
-        </span>
+            ? "0-0 of 0"
+            : `${Math.min(offset + 1, total)}-${Math.min(offset + items.length, total)} of ${total}`}
+          </span>
         <Button
           variant="outline"
           disabled={offset + limit >= total || loading}
