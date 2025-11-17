@@ -33,7 +33,8 @@ export async function getStaticProps() {
                 const filename = src.split("/").pop() || src;
                 return !(
                     filename.startsWith("TheFirstReport") ||
-                    filename.startsWith("TheSecondReport")
+                    filename.startsWith("TheSecondReport")||
+                    filename.startsWith("TheThirdReport")
                 );
             })
             .map((src, i) => ({
