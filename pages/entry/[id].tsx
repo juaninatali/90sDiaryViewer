@@ -40,7 +40,13 @@ export default function EntryPage({ entry }: EntryPageProps) {
                     <h1 className="text-3xl font-bold">{entry.title}</h1>
                     <p className="text-sm text-muted-foreground">{formatDate(entry.date)} - {entry.location}</p>
                     <div className="flex flex-wrap gap-2">
-                        {entry.tags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
+                        {[...entry.tags]
+                            .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }))
+                            .map((tag) => (
+                                <Badge key={tag} variant="outline">
+                                    {tag}
+                                </Badge>
+                            ))}
                     </div>
                     <p className="whitespace-pre-wrap">{entry.text}</p>
 
@@ -63,4 +69,3 @@ export default function EntryPage({ entry }: EntryPageProps) {
         </Layout>
     );
 }
-

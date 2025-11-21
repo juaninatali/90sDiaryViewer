@@ -195,6 +195,21 @@ export default function DiaryViewer() {
     return () => controller.abort();
   }, [search, activeTag, activeYear, startDate, endDate, offset, limit]);
 
+  const sortTags = (tags: string[] = []) =>
+    [...tags].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+
+  const preparePreviewTags = (tags: string[] = []) => {
+    const isGenre = (tag: string) => tag.trim().toLowerCase().startsWith("genre:");
+    const genres = tags.filter(isGenre);
+    const nonGenres = tags.filter((tag) => !isGenre(tag));
+
+    const cappedGenres = sortTags(genres).slice(0, 6);
+    const ordered = [...sortTags(nonGenres), ...cappedGenres];
+
+    // display safety cap in case upstream returns more than expected
+    return ordered.slice(0, 10);
+  };
+
   // --- UI ---
   return (
     <main className="container mx-auto py-8 space-y-8">
@@ -342,50 +357,51 @@ export default function DiaryViewer() {
             Loading...
           </div>
         ) : items.length > 0 ? (
-          items.map((entry) => (
-            <Link
-              href={{ pathname: "/entry/[id]", query: { id: entry.id } }}
-              key={entry.id}
-              className="no-underline"
-            >
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="space-y-4 p-6">
-                  <h2 className="text-xl font-bold">{entry.title}</h2>
-                  <p className="text-sm text-muted-foreground">
-                    {formatDate(entry.date)}{entry.location ? ` - ${entry.location}` : ""}
-                  </p>
+          items.map((entry) => {
+            const displayTags = preparePreviewTags(entry.tags);
+            return (
+              <Link
+                href={{ pathname: "/entry/[id]", query: { id: entry.id } }}
+                key={entry.id}
+                className="no-underline"
+              >
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardContent className="space-y-4 p-6">
+                    <h2 className="text-xl font-bold">{entry.title}</h2>
+                    <p className="text-sm text-muted-foreground">
+                      {formatDate(entry.date)}{entry.location ? ` - ${entry.location}` : ""}
+                    </p>
 
-                  {/* tags */}
-                  {entry.tags?.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {[...entry.tags]
-                        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }))
-                        .map((tag) => (
+                    {/* tags */}
+                    {displayTags.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {displayTags.map((tag) => (
                           <Badge key={tag} variant="outline">{tag}</Badge>
                         ))}
-                    </div>
-                  )}
+                      </div>
+                    )}
 
-                  {/* excerpt */}
-                  {entry.excerpt && (
-                    <p className="whitespace-pre-wrap text-muted-foreground">
-                      {truncate(entry.excerpt, 160)}{" "}
-                      <span className="underline">Read more</span>
-                    </p>
-                  )}
+                    {/* excerpt */}
+                    {entry.excerpt && (
+                      <p className="whitespace-pre-wrap text-muted-foreground">
+                        {truncate(entry.excerpt, 160)}{" "}
+                        <span className="underline">Read more</span>
+                      </p>
+                    )}
 
-                  {/* preview image(s) */}
-                  {entry.images?.length > 0 && (
-                    <div className="flex flex-wrap gap-3 items-center">
-                      {entry.images.slice(0, 3).map((src, index) => (
-                        <DiaryImage key={index} src={src} alt={`Diary Scan ${index + 1}`} />
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </Link>
-          ))
+                    {/* preview image(s) */}
+                    {entry.images?.length > 0 && (
+                      <div className="flex flex-wrap gap-3 items-center">
+                        {entry.images.slice(0, 3).map((src, index) => (
+                          <DiaryImage key={index} src={src} alt={`Diary Scan ${index + 1}`} />
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })
         ) : (
           <div className="col-span-full text-center text-muted-foreground mt-12">
             No results found.
