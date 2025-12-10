@@ -90,6 +90,7 @@ export async function getStaticProps() {
 export default function GalleryPage({ images, facets }: GalleryPageProps) {
     const [activeYear, setActiveYear] = useState<string>("");
     const [activeTag, setActiveTag] = useState<string>("");
+    const [showAllTags, setShowAllTags] = useState<boolean>(false);
 
     const filtered = useMemo(() => {
         let list = images;
@@ -107,22 +108,20 @@ export default function GalleryPage({ images, facets }: GalleryPageProps) {
     return (
         <Layout>
             <div className="max-w-6xl mx-auto px-4 py-8">
-                <h1 className="text-3xl font-bold mb-6">Picture Gallery</h1>
+                <h1 className="text-3xl font-bold mb-6">Flyer Gallery</h1>
 
                 <div className="space-y-6 mb-6">
                     {facets.years.length > 0 && (
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
                                 <h2 className="font-semibold text-lg">Filter by Year</h2>
-                                {isFiltering && (
-                                    <Button
-                                        variant="outline"
-                                        className="whitespace-nowrap"
-                                        onClick={() => { setActiveYear(""); setActiveTag(""); }}
-                                    >
-                                        Clear filters
-                                    </Button>
-                                )}
+                                <Button
+                                    variant="outline"
+                                    className="whitespace-nowrap"
+                                    onClick={() => { setActiveYear(""); setActiveTag(""); }}
+                                >
+                                    Clear filters
+                                </Button>
                             </div>
                             <div className="flex flex-wrap gap-2">
                                 <Badge
@@ -149,7 +148,16 @@ export default function GalleryPage({ images, facets }: GalleryPageProps) {
 
                     {facets.tags.length > 0 && (
                         <div className="space-y-2">
-                            <h2 className="font-semibold text-lg">Filter by Tag</h2>
+                            <div className="flex items-center justify-between">
+                                <h2 className="font-semibold text-lg">Filter by Tag</h2>
+                                <Button
+                                    variant="outline"
+                                    className="whitespace-nowrap"
+                                    onClick={() => setShowAllTags((v) => !v)}
+                                >
+                                    {showAllTags ? "Show fewer tags" : "Show all tags"}
+                                </Button>
+                            </div>
                             <div className="flex flex-wrap gap-2">
                                 <Badge
                                     variant={activeTag === "" ? "default" : "outline"}
@@ -158,7 +166,7 @@ export default function GalleryPage({ images, facets }: GalleryPageProps) {
                                 >
                                     All
                                 </Badge>
-                                {facets.tags.map(({ tag, count }) => (
+                                {(showAllTags ? facets.tags : facets.tags.filter(({ count }) => count > 1)).map(({ tag, count }) => (
                                     <Badge
                                         key={tag}
                                         variant={activeTag === tag ? "default" : "outline"}

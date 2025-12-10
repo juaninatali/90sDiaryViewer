@@ -214,7 +214,7 @@ export default function DiaryViewer() {
   return (
     <main className="container mx-auto py-8 space-y-8">
       {/* Search box */}
-      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center w-full">
         <Input
           placeholder="Search text or tags..."
           value={search}
@@ -284,7 +284,7 @@ export default function DiaryViewer() {
           </div>
 
         </div>
-        <Button variant="outline" onClick={clearAllFilters} className="whitespace-nowrap">
+        <Button variant="outline" onClick={clearAllFilters} className="whitespace-nowrap sm:ml-auto">
           Clear filters
         </Button>
       </div>
@@ -317,7 +317,7 @@ export default function DiaryViewer() {
 
       {facetTags.length > 0 && (
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between w-full">
             <h2 className="font-semibold text-lg">Filter by Tag</h2>
             <Button
               variant="outline"
