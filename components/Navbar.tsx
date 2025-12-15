@@ -14,8 +14,8 @@ export function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 border-b mb-6 bg-background">
-      <nav className="flex items-center justify-between py-4">
+    <header className="sticky top-0 z-50 border-b bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
         {mounted ? (
           pathname !== "/" ? (
             <Link href="/" className="text-2xl font-bold text-foreground">

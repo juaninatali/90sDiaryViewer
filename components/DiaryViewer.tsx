@@ -365,7 +365,7 @@ export default function DiaryViewer() {
                 key={entry.id}
                 className="no-underline"
               >
-                <Card className="hover:shadow-lg transition-shadow">
+                <Card className="cursor-pointer transition will-change-transform hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-black/30">
                   <CardContent className="space-y-4 p-6">
                     <h2 className="text-xl font-bold">{entry.title}</h2>
                     <p className="text-sm text-muted-foreground">
