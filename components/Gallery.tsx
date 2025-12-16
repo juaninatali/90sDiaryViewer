@@ -14,6 +14,11 @@ type GalleryImage = {
 export default function Gallery({ images }: { images: GalleryImage[] }) {
     const [open, setOpen] = useState(false);
     const [index, setIndex] = useState(0);
+    const getDisplayTitle = (img: GalleryImage) => {
+        if (img.title) return img.title;
+        const filename = img.src.split("/").pop() || img.src;
+        return filename.replace(/\.[^/.]+$/, "") || "Image";
+    };
 
     const openAt = useCallback((i: number) => {
         setIndex(i);
@@ -89,10 +94,10 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
                     <button
                         key={`${img.src}-${i}`}
                         onClick={() => openAt(i)}
-                        className="block w-full focus:outline-none focus:ring-2 focus:ring-ring rounded-lg overflow-hidden"
+                        className="group block w-full rounded-xl border border-border/70 bg-card/80 shadow-sm overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
                         aria-label={`Open image ${i + 1} in lightbox`}
                     >
-                        <div className="relative w-full overflow-hidden rounded-lg">
+                        <div className="relative w-full overflow-hidden">
                             {/* Use a ratio box for better CLS; tweak as needed */}
                             <div className="relative w-full" style={{ paddingBottom: "133%" }}>
                                 <NextImage
@@ -100,7 +105,7 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
                                     alt={img.alt ?? "Diary photo"}
                                     fill
                                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                                    className="object-cover transition-transform duration-300 hover:scale-[1.02]"
+                                    className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                                 />
                             </div>
                         </div>
