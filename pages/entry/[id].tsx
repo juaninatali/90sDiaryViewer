@@ -51,13 +51,19 @@ export default function EntryPage({ entry }: EntryPageProps) {
 
     const visibleImages = expanded ? images : images.slice(0, 3);
 
-    const openAt = (i: number) => {
+    const openAt = useCallback((i: number) => {
         setIndex(i);
         setLightboxOpen(true);
-    };
-    const close = () => setLightboxOpen(false);
-    const prev = () => setIndex((i) => (images.length ? (i - 1 + images.length) % images.length : 0));
-    const next = () => setIndex((i) => (images.length ? (i + 1) % images.length : 0));
+    }, []);
+    const close = useCallback(() => setLightboxOpen(false), []);
+    const prev = useCallback(
+        () => setIndex((i) => (images.length ? (i - 1 + images.length) % images.length : 0)),
+        [images.length]
+    );
+    const next = useCallback(
+        () => setIndex((i) => (images.length ? (i + 1) % images.length : 0)),
+        [images.length]
+    );
 
     // Prevent background scroll when lightbox is open
     useEffect(() => {
@@ -66,7 +72,7 @@ export default function EntryPage({ entry }: EntryPageProps) {
             return () => { document.documentElement.style.overflow = ""; };
         }
         document.documentElement.style.overflow = "";
-    }, [lightboxOpen]);
+    }, [lightboxOpen, close, prev, next]);
 
     // Keyboard controls
     useEffect(() => {

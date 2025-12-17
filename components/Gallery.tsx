@@ -102,7 +102,7 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
                             <div className="relative w-full" style={{ paddingBottom: "133%" }}>
                                 <NextImage
                                     src={img.src}
-                                    alt={img.alt ?? "Diary photo"}
+                                    alt={img.alt ?? getDisplayTitle(img)}
                                     fill
                                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                                     className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
@@ -140,7 +140,7 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
                             <NextImage
                                 key={current.src}
                                 src={current.src}
-                                alt={current.alt ?? "Diary photo"}
+                                alt={current.alt ?? getDisplayTitle(current)}
                                 fill
                                 priority
                                 sizes="90vw"
