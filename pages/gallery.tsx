@@ -33,7 +33,7 @@ export async function getStaticProps() {
                 const filename = src.split("/").pop() || src;
                 return !(
                     filename.startsWith("TheFirstReport") ||
-                    filename.startsWith("TheSecondReport")||
+                    filename.startsWith("TheSecondReport") ||
                     filename.startsWith("TheThirdReport")
                 );
             })
@@ -108,7 +108,7 @@ export default function GalleryPage({ images, facets }: GalleryPageProps) {
     return (
         <Layout>
             <div className="max-w-6xl mx-auto px-4 py-8">
-                <h1 className="text-3xl font-bold mb-6">Flyer Gallery</h1>
+                <h1 className="text-3xl font-medium mb-6">Flyer Gallery</h1>
 
                 <div className="space-y-6 mb-6">
                     {facets.years.length > 0 && (
