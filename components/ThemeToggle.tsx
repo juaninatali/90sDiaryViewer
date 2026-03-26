@@ -12,9 +12,6 @@ export function ThemeToggle() {
     setMounted(true);
   }, []);
 
-  // Prevent mismatched rendering on first load
-  // if (!mounted) return null;
-
   if (!mounted) {
     return (
       <Button variant="outline" disabled>
