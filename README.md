@@ -171,4 +171,6 @@ Diary content and images are not covered by this license and may not be reused w
 
 ## Author
 
+Juan Natali. Senior QA Automation Engineer. 
+
 Built as part of a personal project to preserve and explore historical music culture through modern web technologies.

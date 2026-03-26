@@ -1,8 +1,7 @@
 {
   "name": "diary-viewer",
-  "version": "0.1.0",
-  "author": "https://github.com/juaninatali",
-  "private": true,
+  "version": "1.0.0",
+  "author": "https://github.com/juaninatali",  
   "scripts": {
     "dev": "next dev --turbopack",
     "generate-entries": "ts-node scripts/generateEntries.ts",
