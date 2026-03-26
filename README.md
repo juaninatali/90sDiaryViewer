@@ -94,7 +94,7 @@ Diary images are expected in:
 
 ---
 
-## 🧪 Running Tests
+## Running Tests
 
 ```bash
 npm run test
@@ -132,13 +132,13 @@ Dark/light mode is handled via `next-themes`, with hydration-safe rendering to p
 ```
 .
 ├── components                  # UI components
-├── content/entries/            # auto-generated JSON files
-├── data/diary.csv              # source data
+├── content/entries/            # Auto-generated JSON files
+├── data/diary.csv              # Source data
 ├── lib/entries.ts              # Entry loading logic
 ├── logs                        # generateEntries logging
 ├── pages                       # Next.js pages
 ├── public/images/              # Diary scans
-├── scripts/generateEntries.ts  # content preparation script (CSV → JSON pipeline)
+├── scripts/generateEntries.ts  # Content preparation script (CSV → JSON pipeline)
 ├── styles                      # Tailwind styles
 └── types                       # TypeScript types
 
