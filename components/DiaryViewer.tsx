@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,6 +35,8 @@ export function truncate(text: string, length: number): string {
 
 export default function DiaryViewer() {
   const router = useRouter();
+  const resultsRef = useRef<HTMLDivElement | null>(null);
+  const shouldFocusFirstResultRef = useRef(false);
 
   // Facets (global)
   const [facetTags, setFacetTags] = useState<{ tag: string; count: number }[]>([]);
@@ -195,6 +197,20 @@ export default function DiaryViewer() {
     return () => controller.abort();
   }, [search, activeTag, activeYear, startDate, endDate, offset, limit]);
 
+  useEffect(() => {
+    if (loading || !shouldFocusFirstResultRef.current) return;
+
+    shouldFocusFirstResultRef.current = false;
+
+    if (items.length === 0) return;
+
+    const firstResult = resultsRef.current?.querySelector<HTMLAnchorElement>('a[href]');
+    if (!firstResult) return;
+
+    firstResult.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.requestAnimationFrame(() => firstResult.focus());
+  }, [items, loading]);
+
   const sortTags = (tags: string[] = []) =>
     [...tags].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
 
@@ -351,7 +367,7 @@ export default function DiaryViewer() {
       )}
 
       {/* Results */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div ref={resultsRef} className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {loading ? (
           <div className="col-span-full text-center text-muted-foreground mt-12">
             Loading...
@@ -364,6 +380,7 @@ export default function DiaryViewer() {
                 href={{ pathname: "/entry/[id]", query: { id: entry.id } }}
                 key={entry.id}
                 className="no-underline"
+                tabIndex={-1}
               >
                 <Card className="cursor-pointer transition will-change-transform hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-black/30">
                   <CardContent className="space-y-4 p-6">
@@ -414,7 +431,10 @@ export default function DiaryViewer() {
         <Button
           variant="outline"
           disabled={offset === 0 || loading}
-          onClick={() => setOffset(Math.max(0, offset - limit))}
+          onClick={() => {
+            shouldFocusFirstResultRef.current = true;
+            setOffset(Math.max(0, offset - limit));
+          }}
         >
           Previous
         </Button>
@@ -426,7 +446,10 @@ export default function DiaryViewer() {
         <Button
           variant="outline"
           disabled={offset + limit >= total || loading}
-          onClick={() => setOffset(offset + limit)}
+          onClick={() => {
+            shouldFocusFirstResultRef.current = true;
+            setOffset(offset + limit);
+          }}
         >
           Next
         </Button>
