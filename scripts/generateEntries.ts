@@ -1,6 +1,10 @@
 import fs from "fs";
 import path from "path";
 import { parse } from "csv-parse/sync";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Config
 const INPUT_CSV = path.join(__dirname, "../data/diary.csv");
@@ -21,6 +25,11 @@ function log(message: string) {
     const line = `[${timestamp}] ${message}`;
     console.log(line);
     logStream.write(line + "\n");
+}
+
+function normalizeImagePath(img: string) {
+    const cleaned = img.trim().replace(/^\/?images\//, "");
+    return `/images/${cleaned}`;
 }
 
 // Load CSV
@@ -61,7 +70,7 @@ for (const record of records) {
 
     // Check if images exist (in /public/images)
     const missingImages = imageFilenames.filter((filename: string) => {
-        const imagePath = path.join(__dirname, "../public/images", filename.replace(/^\/images\//, ""));
+        const imagePath = path.join(__dirname, "../public/images", filename.replace(/^\/?images\//, ""));
         return !fs.existsSync(imagePath);
     });
 
@@ -76,7 +85,7 @@ for (const record of records) {
         location: record.location?.trim() || "",
         tags: record.tags?.split(";").map((tag: string) => tag.trim()) || [],
         text,
-        images: imageFilenames.map((img: string) => "/images/" + img),
+        images: imageFilenames.map(normalizeImagePath),
     };
 
     const outputPath = path.join(OUTPUT_DIR, `${id}.json`);
