@@ -34,7 +34,8 @@ export async function getStaticProps() {
                 return !(
                     filename.startsWith("TheFirstReport") ||
                     filename.startsWith("TheSecondReport") ||
-                    filename.startsWith("TheThirdReport")
+                    filename.startsWith("TheThirdReport") ||
+                    filename.startsWith("TheFourthReport")
                 );
             })
             .map((src, i) => ({
