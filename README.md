@@ -53,11 +53,7 @@ Diary entries are **not hardcoded** — they are generated from a CSV file.
 
 ### 1. Prepare source data
 
-Place your CSV file here:
-
-```
-/data/diary.csv
-```
+Place your CSV file here: `/data/diary.csv`
 
 ### 2. Generate entries
 
@@ -68,23 +64,14 @@ npm run generate-entries
 This will:
 
 * Convert CSV → JSON
-* Output files into:
-
-```
-/content/entries/
-```
-
+* Output files into: `/content/entries/`
 * Validate referenced images
 
 ---
 
 ## Images
 
-Diary images are expected in:
-
-```
-/public/images/
-```
+Diary images are expected in: `/public/images/`
 
 ⚠️ Note:
 
@@ -141,7 +128,6 @@ Dark/light mode is handled via `next-themes`, with hydration-safe rendering to p
 ├── scripts/generateEntries.ts  # Content preparation script (CSV → JSON pipeline)
 ├── styles                      # Tailwind styles
 └── types                       # TypeScript types
-
 ```
 
 ---
@@ -158,10 +144,10 @@ Dark/light mode is handled via `next-themes`, with hydration-safe rendering to p
 
 The app can be easily deployed using platforms like:
 
-* **Vercel** (recommended for Next.js)
+* Vercel (recommended for Next.js)
 * Netlify
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Check out [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 ## License
 
@@ -171,6 +157,6 @@ Diary content and images are not covered by this license and may not be reused w
 
 ## Author
 
-Juan Natali. Senior QA Automation Engineer. 
+Juan I. Natali. Senior QA Automation Engineer. 
 
 Built as part of a personal project to preserve and explore historical music culture through modern web technologies.
