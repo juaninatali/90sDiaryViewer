@@ -8,8 +8,8 @@ type SearchItem = {
     title: string;
     date: string;         // YYYY-MM-DD
     location: string;
-    tags: string[];       // keep full tags or trim if still large
-    images: string[];     // 0..1 preview only
+    tags: string[];       // full tags for preview filtering
+    images: string[];     // 0..3 preview only
     excerpt: string;      // short text preview
 };
 
@@ -61,8 +61,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         title: e.title,
         date: e.date,
         location: e.location,
-        tags: e.tags.slice(0, 10),
-        images: e.images.slice(0, 1),
+        tags: e.tags,
+        images: e.images.slice(0, 3),
         excerpt:
             e.text.length > 180
                 ? e.text.slice(0, e.text.lastIndexOf(" ", 170) > 120 ? e.text.lastIndexOf(" ", 170) : 180) + "…"

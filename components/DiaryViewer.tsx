@@ -2,10 +2,10 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { DiaryImage } from "@/components/DiaryImage";
 import { Input } from "@/components/ui/input";
 import { formatDate } from "@/lib/utils";
 import Link from "next/link";
+import NextImage from "next/image";
 import { useRouter } from "next/router";
 const DEFAULT_START_DATE = "1995-01-01";
 const DEFAULT_END_DATE = "1995-12-31";
@@ -22,7 +22,7 @@ type SearchItem = {
   date: string;      // YYYY-MM-DD
   location: string;
   tags: string[];
-  images: string[];  // preview only (0..1)
+  images: string[];  // preview only (0..3)
   excerpt: string;   // short preview
 };
 
@@ -211,19 +211,34 @@ export default function DiaryViewer() {
     window.requestAnimationFrame(() => firstResult.focus());
   }, [items, loading]);
 
-  const sortTags = (tags: string[] = []) =>
-    [...tags].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
-
   const preparePreviewTags = (tags: string[] = []) => {
-    const isGenre = (tag: string) => tag.trim().toLowerCase().startsWith("genre:");
-    const genres = tags.filter(isGenre);
-    const nonGenres = tags.filter((tag) => !isGenre(tag));
+    const previewPrefixes = ["artist", "genre", "venue"] as const;
+    const counts: Record<(typeof previewPrefixes)[number], number> = {
+      artist: 0,
+      genre: 0,
+      venue: 0,
+    };
 
-    const cappedGenres = sortTags(genres).slice(0, 6);
-    const ordered = [...sortTags(nonGenres), ...cappedGenres];
+    return tags.filter((tag) => {
+      const prefix = tag.split(":")[0]?.trim().toLowerCase();
+      if (!previewPrefixes.includes(prefix as (typeof previewPrefixes)[number])) {
+        return false;
+      }
 
-    // display safety cap in case upstream returns more than expected
-    return ordered.slice(0, 10);
+      const key = prefix as (typeof previewPrefixes)[number];
+      if (counts[key] >= 2) {
+        return false;
+      }
+
+      counts[key] += 1;
+      return true;
+    });
+  };
+
+  const normalizeImageSrc = (src: string) => {
+    if (src.startsWith("/")) return src;
+    const cleaned = src.replace(/^images[\\/]+/i, "");
+    return `/images/${cleaned}`;
   };
 
   // --- UI ---
@@ -408,9 +423,24 @@ export default function DiaryViewer() {
 
                     {/* preview image(s) */}
                     {entry.images?.length > 0 && (
-                      <div className="flex flex-wrap gap-3 items-center">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {entry.images.slice(0, 3).map((src, index) => (
-                          <DiaryImage key={index} src={src} alt={`Diary Scan ${index + 1}`} />
+                          <div
+                            key={`${src}-${index}`}
+                            className="group block w-full rounded-xl border border-border/70 bg-card/80 shadow-sm overflow-hidden"
+                          >
+                            <div className="relative w-full overflow-hidden">
+                              <div className="relative w-full" style={{ paddingBottom: "133%" }}>
+                                <NextImage
+                                  src={normalizeImageSrc(src)}
+                                  alt={`Diary Scan ${index + 1}`}
+                                  fill
+                                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                                  className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                                />
+                              </div>
+                            </div>
+                          </div>
                         ))}
                       </div>
                     )}
