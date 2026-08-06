@@ -73,7 +73,8 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
     // Preload neighbors for snappier nav
     useEffect(() => {
         if (!open || images.length === 0) return;
-        const NativeImage = (globalThis as any).Image as typeof window.Image | undefined;
+        const globalWithImage = globalThis as typeof globalThis & { Image?: typeof Image };
+        const NativeImage = globalWithImage.Image;
         if (!NativeImage) return;
         const left = new NativeImage();
         left.src = images[(index - 1 + images.length) % images.length]?.src || "";

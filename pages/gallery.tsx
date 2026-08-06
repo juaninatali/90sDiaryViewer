@@ -76,13 +76,14 @@ export async function getStaticProps() {
             tagCounts.set(t, (tagCounts.get(t) || 0) + 1);
         }
     }
+    const collatorOptions: Intl.CollatorOptions = { sensitivity: "base" };
     const facets = {
         years: Array.from(yearCounts.entries())
             .map(([year, count]) => ({ year, count }))
             .sort((a, b) => a.year.localeCompare(b.year)),
         tags: Array.from(tagCounts.entries())
             .map(([tag, count]) => ({ tag, count }))
-            .sort((a, b) => a.tag.localeCompare(b.tag, undefined, { sensitivity: "base" } as any)),
+            .sort((a, b) => a.tag.localeCompare(b.tag, undefined, collatorOptions)),
     } as const;
 
     return { props: { images: sortedImages, facets } };
