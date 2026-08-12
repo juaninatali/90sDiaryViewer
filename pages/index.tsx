@@ -25,8 +25,8 @@ export default function Home() {
       {/* Intro Section */}
       <main className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center mt-8">
         <p className="text-lg mb-8 max-w-2xl">
-          Memorias, momentos y detalles de la escena Electrónica Underground en
-          Buenos Aires en los 90s.
+          Memorias, momentos y detalles de la escena Electrónica Underground de
+          Buenos Aires en los 90's.
         </p>
         <Link href="/search" className="text-foreground underline text-lg">
           Start Browsing

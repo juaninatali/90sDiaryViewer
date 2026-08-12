@@ -169,7 +169,7 @@ export default function GalleryPage({ images, facets }: GalleryPageProps) {
                                 >
                                     All
                                 </Badge>
-                                {(showAllTags ? facets.tags : facets.tags.filter(({ count }) => count > 1)).map(({ tag, count }) => (
+                                {(showAllTags ? facets.tags : facets.tags.filter(({ count }) => count > 6)).map(({ tag, count }) => (
                                     <Badge
                                         key={tag}
                                         variant={activeTag === tag ? "default" : "outline"}
