@@ -111,8 +111,7 @@ export default function GalleryPage({ images, facets }: GalleryPageProps) {
     return (
         <Layout>
             <div className="py-8">
-                <h1 className="text-3xl font-medium mb-6">Flyer Gallery</h1>
-
+                
                 <div className="space-y-6 mb-6">
                     {facets.years.length > 0 && (
                         <div className="space-y-2">
