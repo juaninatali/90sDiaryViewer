@@ -78,6 +78,25 @@ export default function DiaryViewer() {
   const [showAllTags, setShowAllTags] = useState<boolean>(false);
 
   useEffect(() => {
+    if (!router.isReady) return;
+
+    const s = typeof router.query.startDate === "string" ? router.query.startDate : "";
+    const e = typeof router.query.endDate === "string" ? router.query.endDate : "";
+
+    if (s) {
+      setStartDate(s);
+      setDraftStartDate(s);
+    }
+    if (e) {
+      setEndDate(e);
+      setDraftEndDate(e);
+    }
+    if (s || e) {
+      setDatesPrimed(true);
+    }
+  }, [router.isReady, router.query.startDate, router.query.endDate]);
+
+  useEffect(() => {
     if (startDate && endDate && endDate < startDate) {
       setEndDate(startDate);
       setDraftEndDate(startDate);
@@ -104,6 +123,9 @@ export default function DiaryViewer() {
     setActiveYear("");
     setStartDate("");
     setEndDate("");
+    setDraftStartDate("");
+    setDraftEndDate("");
+    setDatesPrimed(false);
     setOffset(0);
   }
 
@@ -272,16 +294,8 @@ export default function DiaryViewer() {
                 setOffset(0);
               }}
               aria-label="Start date"
-              className="w-[10rem] sm:w-[10rem] md:w-[11rem] lg:w-[12rem] sm:flex-none pr-9"
+              className="w-[10rem] sm:w-[10rem] md:w-[11rem] lg:w-[12rem] sm:flex-none"
             />
-            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-              </svg>
-            </span>
           </div>
           <div className="relative">
             <Input
@@ -302,16 +316,8 @@ export default function DiaryViewer() {
                 setOffset(0);
               }}
               aria-label="End date"
-              className="w-[10rem] sm:w-[10rem] md:w-[11rem] lg:w-[12rem] sm:flex-none pr-9"
+              className="w-[10rem] sm:w-[10rem] md:w-[11rem] lg:w-[12rem] sm:flex-none"
             />
-            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-              </svg>
-            </span>
           </div>
 
         </div>
@@ -472,7 +478,7 @@ export default function DiaryViewer() {
           {total === 0
             ? "0-0 of 0"
             : `${Math.min(offset + 1, total)}-${Math.min(offset + items.length, total)} of ${total}`}
-          </span>
+        </span>
         <Button
           variant="outline"
           disabled={offset + limit >= total || loading}

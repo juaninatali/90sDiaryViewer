@@ -70,7 +70,7 @@ input, select, textarea {
 }
 
 
-/* Normalize date input picker: hide native icon but keep click area */
+/* Make the browser's native date picker affordance visibly interactive. */
 input[type="date"]::-webkit-calendar-picker-indicator {
-  opacity: 0;
+  cursor: pointer;
 }
