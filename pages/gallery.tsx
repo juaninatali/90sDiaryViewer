@@ -1,191 +1,184 @@
-// pages/gallery.tsx
 import { Layout } from "@/components/Layout";
 import Gallery from "@/components/Gallery";
-import { getAllEntries } from "@/lib/entries";
-import { DiaryEntry } from "@/types/diary";
-import { useMemo, useState } from "react";
+import type { GalleryFacets, GalleryImage } from "@/lib/gallery";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-type GalleryImageWithMeta = {
-    src: string;
-    alt?: string;
-    entryId?: string;
-    date?: string; // YYYY-MM-DD
-    title?: string;
-    year?: string; // derived from date
-    tags?: string[]; // from entry
-};
+const PAGE_SIZE = 50;
 
-type GalleryPageProps = {
-    images: GalleryImageWithMeta[];
-    facets: {
-        years: { year: string; count: number }[];
-        tags: { tag: string; count: number }[];
-    };
-};
+export default function GalleryPage() {
+  const [images, setImages] = useState<GalleryImage[]>([]);
+  const [facets, setFacets] = useState<GalleryFacets>({ years: [], tags: [] });
+  const [activeYear, setActiveYear] = useState("");
+  const [activeTag, setActiveTag] = useState("");
+  const [showAllTags, setShowAllTags] = useState(false);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const requestControllerRef = useRef<AbortController | null>(null);
+  const requestIdRef = useRef(0);
+  const loadingRef = useRef(false);
 
-export async function getStaticProps() {
-    const entries: DiaryEntry[] = getAllEntries();
-    const images = entries.flatMap((e) =>
-        (e.images || [])
-            .filter((src) => {
-                const filename = src.split("/").pop() || src;
-                return !(
-                    filename.startsWith("TheFirstReport") ||
-                    filename.startsWith("TheSecondReport") ||
-                    filename.startsWith("TheThirdReport") ||
-                    filename.startsWith("TheFourthReport") ||
-                    filename.startsWith("TheFifthReport")
-                );
-            })
-            .map((src, i) => ({
-                src,
-                alt: `Image ${i + 1} from "${e.title}"`,
-                entryId: e.id,
-                date: e.date,
-                title: e.title,
-                year: (e.date || "").slice(0, 4),
-                tags: e.tags || [],
-            }))
-    );
+  useEffect(() => {
+    const controller = new AbortController();
 
-    // Deduplicate by case-insensitive filename so each file shows once
-    const uniqueImages: GalleryImageWithMeta[] = Array.from(
-        images.reduce((map, img) => {
-            const key = (img.src.split("/").pop() || img.src).toLowerCase();
-            if (!map.has(key)) map.set(key, img);
-            return map;
-        }, new Map<string, typeof images[number]>()).values()
-    );
+    fetch("/api/gallery-facets", { signal: controller.signal })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error(`HTTP ${response.status}`)))
+      .then((data) => {
+        setFacets({
+          years: Array.isArray(data.years) ? data.years : [],
+          tags: Array.isArray(data.tags) ? data.tags : [],
+        });
+      })
+      .catch((fetchError) => {
+        if (fetchError.name !== "AbortError") console.error(fetchError);
+      });
 
-    // Sort alphabetically by filename (case-insensitive)
-    const sortedImages = uniqueImages.sort((a, b) => {
-        const an = (a.src.split("/").pop() || a.src).toLowerCase();
-        const bn = (b.src.split("/").pop() || b.src).toLowerCase();
-        return an.localeCompare(bn);
+    return () => controller.abort();
+  }, []);
+
+  const loadPage = useCallback(async (offset: number, reset = false) => {
+    if (reset) {
+      requestControllerRef.current?.abort();
+      loadingRef.current = false;
+    }
+    if (loadingRef.current) return;
+
+    const controller = new AbortController();
+    const requestId = ++requestIdRef.current;
+    requestControllerRef.current = controller;
+    loadingRef.current = true;
+    setLoading(true);
+    setError("");
+
+    const params = new URLSearchParams({
+      year: activeYear,
+      tag: activeTag,
+      offset: String(offset),
+      limit: String(PAGE_SIZE),
     });
 
-    // Build facets from deduplicated+sorted images
-    const yearCounts = new Map<string, number>();
-    const tagCounts = new Map<string, number>();
-    for (const img of sortedImages) {
-        const y = (img.year || "").trim();
-        if (y) yearCounts.set(y, (yearCounts.get(y) || 0) + 1);
-        for (const t of img.tags || []) {
-            if (!t) continue;
-            tagCounts.set(t, (tagCounts.get(t) || 0) + 1);
-        }
+    try {
+      const response = await fetch(`/api/gallery?${params.toString()}`, {
+        signal: controller.signal,
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const data = await response.json();
+      if (requestId !== requestIdRef.current) return;
+
+      const nextImages = Array.isArray(data.items) ? data.items : [];
+      setImages((current) => reset ? nextImages : [...current, ...nextImages]);
+      setTotal(typeof data.total === "number" ? data.total : 0);
+    } catch (fetchError) {
+      if (fetchError instanceof Error && fetchError.name !== "AbortError") {
+        console.error(fetchError);
+        setError("The gallery could not be loaded. Please try again.");
+      }
+    } finally {
+      if (requestId === requestIdRef.current) {
+        loadingRef.current = false;
+        setLoading(false);
+      }
     }
-    const collatorOptions: Intl.CollatorOptions = { sensitivity: "base" };
-    const facets = {
-        years: Array.from(yearCounts.entries())
-            .map(([year, count]) => ({ year, count }))
-            .sort((a, b) => a.year.localeCompare(b.year)),
-        tags: Array.from(tagCounts.entries())
-            .map(([tag, count]) => ({ tag, count }))
-            .sort((a, b) => a.tag.localeCompare(b.tag, undefined, collatorOptions)),
-    } as const;
+  }, [activeTag, activeYear]);
 
-    return { props: { images: sortedImages, facets } };
-}
+  useEffect(() => {
+    setImages([]);
+    setTotal(0);
+    void loadPage(0, true);
 
-export default function GalleryPage({ images, facets }: GalleryPageProps) {
-    const [activeYear, setActiveYear] = useState<string>("");
-    const [activeTag, setActiveTag] = useState<string>("");
-    const [showAllTags, setShowAllTags] = useState<boolean>(false);
+    return () => requestControllerRef.current?.abort();
+  }, [loadPage]);
 
-    const filtered = useMemo(() => {
-        let list = images;
-        if (activeYear) list = list.filter((img) => img.year === activeYear);
-        if (activeTag) list = list.filter((img) => (img.tags || []).includes(activeTag));
-        return [...list].sort((a, b) => {
-            const an = (a.src.split("/").pop() || a.src).toLowerCase();
-            const bn = (b.src.split("/").pop() || b.src).toLowerCase();
-            return an.localeCompare(bn);
-        });
-    }, [images, activeYear, activeTag]);
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel || images.length >= total) return;
 
-    const isFiltering = !!activeYear || !!activeTag;
-
-    return (
-        <Layout>
-            <div className="py-8">
-                
-                <div className="space-y-6 mb-6">
-                    {facets.years.length > 0 && (
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                                <h2 className="font-semibold text-lg">Filter by Year</h2>
-                                <Button
-                                    variant="outline"
-                                    className="whitespace-nowrap"
-                                    onClick={() => { setActiveYear(""); setActiveTag(""); }}
-                                >
-                                    Clear filters
-                                </Button>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                                <Badge
-                                    variant={activeYear === "" ? "default" : "outline"}
-                                    onClick={() => setActiveYear("")}
-                                    className="cursor-pointer"
-                                >
-                                    All
-                                </Badge>
-                                {facets.years.map(({ year, count }) => (
-                                    <Badge
-                                        key={year}
-                                        variant={activeYear === year ? "default" : "outline"}
-                                        onClick={() => setActiveYear(year)}
-                                        className="cursor-pointer"
-                                        title={`${count} image${count === 1 ? "" : "s"}`}
-                                    >
-                                        {year}
-                                    </Badge>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {facets.tags.length > 0 && (
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                                <h2 className="font-semibold text-lg">Filter by Tag</h2>
-                                <Button
-                                    variant="outline"
-                                    className="whitespace-nowrap"
-                                    onClick={() => setShowAllTags((v) => !v)}
-                                >
-                                    {showAllTags ? "Show fewer tags" : "Show all tags"}
-                                </Button>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                                <Badge
-                                    variant={activeTag === "" ? "default" : "outline"}
-                                    onClick={() => setActiveTag("")}
-                                    className="cursor-pointer"
-                                >
-                                    All
-                                </Badge>
-                                {(showAllTags ? facets.tags : facets.tags.filter(({ count }) => count > 6)).map(({ tag, count }) => (
-                                    <Badge
-                                        key={tag}
-                                        variant={activeTag === tag ? "default" : "outline"}
-                                        onClick={() => setActiveTag(tag)}
-                                        className="cursor-pointer"
-                                        title={`${count} image${count === 1 ? "" : "s"}`}
-                                    >
-                                        {tag}
-                                    </Badge>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                <Gallery images={filtered} />
-            </div>
-        </Layout>
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !loadingRef.current) {
+          void loadPage(images.length);
+        }
+      },
+      { rootMargin: "600px 0px" }
     );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [images.length, loadPage, total]);
+
+  return (
+    <Layout>
+      <div className="py-8">
+        <div className="space-y-6 mb-6">
+          {facets.years.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold text-lg">Filter by Year</h2>
+                <Button
+                  variant="outline"
+                  className="whitespace-nowrap"
+                  onClick={() => { setActiveYear(""); setActiveTag(""); }}
+                >
+                  Clear filters
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant={activeYear === "" ? "default" : "outline"} onClick={() => setActiveYear("")} className="cursor-pointer">
+                  All
+                </Badge>
+                {facets.years.map(({ year, count }) => (
+                  <Badge key={year} variant={activeYear === year ? "default" : "outline"} onClick={() => setActiveYear(year)} className="cursor-pointer" title={`${count} image${count === 1 ? "" : "s"}`}>
+                    {year}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {facets.tags.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold text-lg">Filter by Tag</h2>
+                <Button variant="outline" className="whitespace-nowrap" onClick={() => setShowAllTags((value) => !value)}>
+                  {showAllTags ? "Show fewer tags" : "Show all tags"}
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant={activeTag === "" ? "default" : "outline"} onClick={() => setActiveTag("")} className="cursor-pointer">
+                  All
+                </Badge>
+                {(showAllTags ? facets.tags : facets.tags.filter(({ count }) => count > 6)).map(({ tag, count }) => (
+                  <Badge key={tag} variant={activeTag === tag ? "default" : "outline"} onClick={() => setActiveTag(tag)} className="cursor-pointer" title={`${count} image${count === 1 ? "" : "s"}`}>
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <Gallery images={images} />
+
+        <div ref={sentinelRef} className="h-1" aria-hidden="true" />
+        <div className="min-h-12 pt-4 text-center text-sm text-muted-foreground" aria-live="polite">
+          {loading && (images.length === 0 ? "Loading gallery..." : "Loading more images...")}
+          {!loading && error && (
+            <div className="space-y-2">
+              <p>{error}</p>
+              <Button variant="outline" onClick={() => void loadPage(images.length, images.length === 0)}>
+                Try again
+              </Button>
+            </div>
+          )}
+          {!loading && !error && images.length > 0 && images.length >= total && (
+            <span>Showing all {total} images.</span>
+          )}
+        </div>
+      </div>
+    </Layout>
+  );
 }
