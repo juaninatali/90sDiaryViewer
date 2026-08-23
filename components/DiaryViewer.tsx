@@ -56,16 +56,10 @@ export default function DiaryViewer() {
     return () => { cancelled = true; };
   }, []);
 
-  // --- filter state (seed from URL if present) ---
-  const [search, setSearch] = useState<string>(
-    typeof router.query.q === "string" ? router.query.q : ""
-  );
-  const [activeTag, setActiveTag] = useState<string>(
-    typeof router.query.tag === "string" ? router.query.tag : ""
-  );
-  const [activeYear, setActiveYear] = useState<string>(
-    typeof router.query.year === "string" ? router.query.year : ""
-  );
+  // --- filter state (hydrated from the URL once the router is ready) ---
+  const [search, setSearch] = useState<string>("");
+  const [activeTag, setActiveTag] = useState<string>("");
+  const [activeYear, setActiveYear] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
 
@@ -76,25 +70,7 @@ export default function DiaryViewer() {
   // prime both inputs with 1995 range on first interaction, not on load
   const [datesPrimed, setDatesPrimed] = useState<boolean>(false);
   const [showAllTags, setShowAllTags] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (!router.isReady) return;
-
-    const s = typeof router.query.startDate === "string" ? router.query.startDate : "";
-    const e = typeof router.query.endDate === "string" ? router.query.endDate : "";
-
-    if (s) {
-      setStartDate(s);
-      setDraftStartDate(s);
-    }
-    if (e) {
-      setEndDate(e);
-      setDraftEndDate(e);
-    }
-    if (s || e) {
-      setDatesPrimed(true);
-    }
-  }, [router.isReady, router.query.startDate, router.query.endDate]);
+  const [urlHydrated, setUrlHydrated] = useState<boolean>(false);
 
   useEffect(() => {
     if (startDate && endDate && endDate < startDate) {
@@ -107,12 +83,31 @@ export default function DiaryViewer() {
   const [items, setItems] = useState<SearchItem[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  const [offset, setOffset] = useState<number>(
-    typeof router.query.offset === "string" ? parseInt(router.query.offset, 10) || 0 : 0
-  );
-  const [limit, setLimit] = useState<number>(
-    typeof router.query.limit === "string" ? Math.min(100, parseInt(router.query.limit, 10) || 12) : 12
-  );
+  const [offset, setOffset] = useState<number>(0);
+  const [limit, setLimit] = useState<number>(12);
+
+  useEffect(() => {
+    if (!router.isReady || urlHydrated) return;
+
+    const queryValue = (key: string) =>
+      typeof router.query[key] === "string" ? router.query[key] : "";
+    const nextStartDate = queryValue("startDate");
+    const nextEndDate = queryValue("endDate");
+    const parsedOffset = parseInt(queryValue("offset"), 10);
+    const parsedLimit = parseInt(queryValue("limit"), 10);
+
+    setSearch(queryValue("q"));
+    setActiveTag(queryValue("tag"));
+    setActiveYear(queryValue("year"));
+    setStartDate(nextStartDate);
+    setEndDate(nextEndDate);
+    setDraftStartDate(nextStartDate);
+    setDraftEndDate(nextEndDate);
+    setDatesPrimed(Boolean(nextStartDate || nextEndDate));
+    setOffset(Number.isFinite(parsedOffset) ? Math.max(0, parsedOffset) : 0);
+    setLimit(Number.isFinite(parsedLimit) ? Math.max(1, Math.min(100, parsedLimit)) : 12);
+    setUrlHydrated(true);
+  }, [router.isReady, router.query, urlHydrated]);
 
   const isFiltering =
     !!search || !!activeTag || !!activeYear || !!startDate || !!endDate;
@@ -175,6 +170,8 @@ export default function DiaryViewer() {
 
   // Keep URL in sync so filters are shareable.
   useEffect(() => {
+    if (!urlHydrated) return;
+
     const q: Record<string, string> = {};
     if (search) q.q = search;
     if (activeTag) q.tag = activeTag;
@@ -184,11 +181,21 @@ export default function DiaryViewer() {
     if (offset) q.offset = String(offset);
     if (limit !== 12) q.limit = String(limit);
 
-    router.replace({ pathname: "/search", query: q }, undefined, { shallow: true });
-  }, [search, activeTag, activeYear, startDate, endDate, offset, limit]);
+    const queryMatches = Object.entries(q).every(
+      ([key, value]) => router.query[key] === value
+    ) && Object.keys(router.query).every(
+      (key) => key in q
+    );
+
+    if (!queryMatches) {
+      void router.replace({ pathname: "/search", query: q }, undefined, { shallow: true });
+    }
+  }, [search, activeTag, activeYear, startDate, endDate, offset, limit, router, router.query, urlHydrated]);
 
   // Fetch when filters/paging change.
   useEffect(() => {
+    if (!urlHydrated) return;
+
     const controller = new AbortController();
     const params = new URLSearchParams({
       q: search,
@@ -217,7 +224,7 @@ export default function DiaryViewer() {
       .finally(() => setLoading(false));
 
     return () => controller.abort();
-  }, [search, activeTag, activeYear, startDate, endDate, offset, limit]);
+  }, [search, activeTag, activeYear, startDate, endDate, offset, limit, urlHydrated]);
 
   useEffect(() => {
     if (loading || !shouldFocusFirstResultRef.current) return;
@@ -401,7 +408,6 @@ export default function DiaryViewer() {
                 href={{ pathname: "/entry/[id]", query: { id: entry.id } }}
                 key={entry.id}
                 className="no-underline"
-                tabIndex={-1}
               >
                 <Card className="cursor-pointer transition will-change-transform hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-black/30">
                   <CardContent className="space-y-4 p-6">
