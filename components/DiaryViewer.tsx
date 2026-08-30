@@ -7,6 +7,7 @@ import { formatDate } from "@/lib/utils";
 import Link from "next/link";
 import NextImage from "next/image";
 import { useRouter } from "next/router";
+import { isReportImage } from "@/lib/images";
 const DEFAULT_START_DATE = "1995-01-01";
 const DEFAULT_END_DATE = "1995-12-31";
 
@@ -439,7 +440,7 @@ export default function DiaryViewer() {
                         {entry.images.slice(0, 3).map((src, index) => (
                           <div
                             key={`${src}-${index}`}
-                            className="group block w-full rounded-xl border border-border/70 bg-card/80 shadow-sm overflow-hidden"
+                            className={`${isReportImage(src) ? "hidden sm:block" : "block"} group w-full rounded-xl border border-border/70 bg-card/80 shadow-sm overflow-hidden`}
                           >
                             <div className="relative w-full overflow-hidden">
                               <div className="relative w-full" style={{ paddingBottom: "133%" }}>

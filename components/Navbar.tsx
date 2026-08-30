@@ -19,7 +19,7 @@ export function Navbar() {
         <div className="flex items-center gap-9">
           {mounted ? (
             pathname !== "/" ? (
-              <Link href="/" className="text-xl font-medium hover:underline">
+              <Link href="/" className="inline-flex min-h-11 items-center text-xl font-medium hover:underline">
                 Home
               </Link>
             ) : (
@@ -28,7 +28,7 @@ export function Navbar() {
           ) : null}
           {mounted ? (
             pathname !== "/search" ? (
-              <Link href="/search" className="text-xl font-medium hover:underline">
+              <Link href="/search" className="inline-flex min-h-11 items-center text-xl font-medium hover:underline">
                 Search
               </Link>
             ) : (
@@ -37,7 +37,7 @@ export function Navbar() {
           ) : null}
           {mounted ? (
             pathname !== "/gallery" ? (
-              <Link href="/gallery" className="text-xl font-medium hover:underline">
+              <Link href="/gallery" className="inline-flex min-h-11 items-center text-xl font-medium hover:underline">
                 Gallery
               </Link>
             ) : (

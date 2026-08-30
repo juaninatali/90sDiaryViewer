@@ -7,6 +7,7 @@ import { GetStaticPropsContext } from "next";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatDate } from "@/lib/utils";
 import NextImage from "next/image";
+import { isReportImage } from "@/lib/images";
 
 type EntryPageProps = {
     entry: DiaryEntry;
@@ -45,6 +46,7 @@ export default function EntryPage({ entry }: EntryPageProps) {
         () => entry.images.map((src, i) => ({
             src: normalizeImageSrc(src),
             alt: `Image ${i + 1} from "${entry.title}"`,
+            isReport: isReportImage(src),
         })),
         [entry.images, entry.title, normalizeImageSrc]
     );
@@ -108,7 +110,7 @@ export default function EntryPage({ entry }: EntryPageProps) {
                             <button
                                 key={`${img.src}-${i}`}
                                 onClick={() => openAt(i)}
-                                className="group block w-full rounded-xl border border-border/70 bg-card/80 shadow-sm overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+                                className={`${img.isReport ? "hidden sm:block" : "block"} group w-full rounded-xl border border-border/70 bg-card/80 shadow-sm overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background`}
                                 aria-label={`Open image ${i + 1} in lightbox`}
                             >
                                 <div className="relative w-full overflow-hidden">
@@ -129,7 +131,7 @@ export default function EntryPage({ entry }: EntryPageProps) {
                     {entry.images.length > 3 && (
                         <button
                             onClick={() => setExpanded(!expanded)}
-                            className="mt-4 text-muted-foreground underline text-sm hover:text-foreground transition-colors"
+                            className="mt-4 inline-flex min-h-11 items-center px-2 text-muted-foreground underline text-sm hover:text-foreground transition-colors"
                         >
                             {expanded ? "Show Fewer" : "View All Images"}
                         </button>
@@ -152,7 +154,7 @@ export default function EntryPage({ entry }: EntryPageProps) {
                         <button
                             onClick={close}
                             aria-label="Close"
-                            className="absolute -top-12 right-0 text-white/80 hover:text-white underline"
+                            className="absolute -top-12 right-0 inline-flex min-h-11 items-center px-2 text-white/80 hover:text-white underline"
                         >
                             Close (Esc)
                         </button>
@@ -174,8 +176,8 @@ export default function EntryPage({ entry }: EntryPageProps) {
                                 <span>{index + 1} / {images.length}</span>
                             </div>
                             <div className="flex gap-3">
-                                <button onClick={prev} className="underline" aria-label="Previous image">Prev</button>
-                                <button onClick={next} className="underline" aria-label="Next image">Next</button>
+                                <button onClick={prev} className="inline-flex min-h-11 items-center px-2 underline" aria-label="Previous image">Prev</button>
+                                <button onClick={next} className="inline-flex min-h-11 items-center px-2 underline" aria-label="Next image">Next</button>
                             </div>
                         </div>
                     </div>
