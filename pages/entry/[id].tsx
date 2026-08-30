@@ -104,7 +104,7 @@ export default function EntryPage({ entry }: EntryPageProps) {
         };
         window.addEventListener("keydown", onKey);
         return () => window.removeEventListener("keydown", onKey);
-    }, [lightboxOpen]);
+    }, [lightboxOpen, close, prev, next]);
 
     return (
         <Layout>
