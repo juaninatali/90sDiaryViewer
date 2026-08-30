@@ -151,7 +151,7 @@ export default function GalleryPage() {
                 <Badge variant={activeTag === "" ? "default" : "outline"} onClick={() => setActiveTag("")} className="cursor-pointer">
                   All
                 </Badge>
-                {(showAllTags ? facets.tags : facets.tags.filter(({ count }) => count > 8)).map(({ tag, count }) => (
+                {(showAllTags ? facets.tags : facets.tags.filter(({ count }) => count > 14)).map(({ tag, count }) => (
                   <Badge key={tag} variant={activeTag === tag ? "default" : "outline"} onClick={() => setActiveTag(tag)} className="cursor-pointer" title={`${count} image${count === 1 ? "" : "s"}`}>
                     {tag}
                   </Badge>

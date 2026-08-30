@@ -380,7 +380,7 @@ export default function DiaryViewer() {
             >
               All
             </Badge>
-            {(showAllTags ? sortedFacetTags : sortedFacetTags.filter(({ count }) => count > 4)).map(({ tag, count }) => (
+            {(showAllTags ? sortedFacetTags : sortedFacetTags.filter(({ count }) => count > 9)).map(({ tag, count }) => (
               <Badge
                 key={tag}
                 variant={activeTag === tag ? "default" : "outline"}
