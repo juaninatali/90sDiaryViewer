@@ -1,5 +1,6 @@
 import { getAllEntries } from "@/lib/entries";
 import { DiaryEntry } from "@/types/diary";
+import { isReportImage } from "@/lib/images";
 
 export type GalleryImage = {
   src: string;
@@ -16,8 +17,6 @@ export type GalleryFacets = {
   tags: { tag: string; count: number }[];
 };
 
-const excludedReportImage = /^The(First|Second|Third|Fourth|Fifth)Report/;
-
 let galleryImagesCache: GalleryImage[] | undefined;
 
 export function getGalleryImages(): GalleryImage[] {
@@ -26,7 +25,7 @@ export function getGalleryImages(): GalleryImage[] {
   const entries: DiaryEntry[] = getAllEntries();
   const images = entries.flatMap((entry) =>
     (entry.images || [])
-      .filter((src) => !excludedReportImage.test(src.split("/").pop() || src))
+      .filter((src) => !isReportImage(src))
       .map((src, index) => ({
         src,
         alt: `Image ${index + 1} from "${entry.title}"`,

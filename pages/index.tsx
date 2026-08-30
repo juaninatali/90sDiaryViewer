@@ -28,7 +28,7 @@ export default function Home() {
           Memorias, momentos y detalles de la escena Electrónica Underground de
           Buenos Aires en los 90&apos;s.
         </p>
-        <Link href="/search" className="text-foreground underline text-lg">
+        <Link href="/search" className="inline-flex min-h-11 items-center px-2 text-foreground underline text-lg">
           Start Browsing
         </Link>
       </main>

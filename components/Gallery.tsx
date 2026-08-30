@@ -131,7 +131,7 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
                         <button
                             onClick={close}
                             aria-label="Close"
-                            className="absolute -top-12 right-0 text-white/80 hover:text-white underline"
+                            className="absolute -top-12 right-0 inline-flex min-h-11 items-center px-2 text-white/80 hover:text-white underline"
                         >
                             Close (Esc)
                         </button>
@@ -160,7 +160,7 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
                                 {current.entryId && (
                                     <>
                                         <span className="opacity-40">•</span>
-                                        <Link href={`/entry/${current.entryId}`} className="underline">
+                                        <Link href={`/entry/${current.entryId}`} className="inline-flex min-h-11 items-center px-2 underline">
                                             View entry
                                         </Link>
                                     </>
@@ -168,8 +168,8 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
                             </div>
 
                             <div className="flex gap-3">
-                                <button onClick={prev} className="underline" aria-label="Previous image">Prev (←)</button>
-                                <button onClick={next} className="underline" aria-label="Next image">Next (→)</button>
+                                <button onClick={prev} className="inline-flex min-h-11 items-center px-2 underline" aria-label="Previous image">Prev (←)</button>
+                                <button onClick={next} className="inline-flex min-h-11 items-center px-2 underline" aria-label="Next image">Next (→)</button>
                             </div>
                         </div>
                     </div>
