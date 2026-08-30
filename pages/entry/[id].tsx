@@ -7,7 +7,7 @@ import { GetStaticPropsContext } from "next";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatDate } from "@/lib/utils";
 import NextImage from "next/image";
-import { isReportImage } from "@/lib/images";
+import { getEntryImagesForViewport } from "@/lib/images";
 
 type EntryPageProps = {
     entry: DiaryEntry;
@@ -34,6 +34,16 @@ export default function EntryPage({ entry }: EntryPageProps) {
     const [expanded, setExpanded] = useState(false);
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [index, setIndex] = useState(0);
+    const [belowSm, setBelowSm] = useState(false);
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia("(max-width: 639px)");
+        const updateViewport = () => setBelowSm(mediaQuery.matches);
+
+        updateViewport();
+        mediaQuery.addEventListener("change", updateViewport);
+        return () => mediaQuery.removeEventListener("change", updateViewport);
+    }, []);
 
     const normalizeImageSrc = useCallback((src: string) => {
         if (src.startsWith("/")) return src;
@@ -46,12 +56,15 @@ export default function EntryPage({ entry }: EntryPageProps) {
         () => entry.images.map((src, i) => ({
             src: normalizeImageSrc(src),
             alt: `Image ${i + 1} from "${entry.title}"`,
-            isReport: isReportImage(src),
         })),
         [entry.images, entry.title, normalizeImageSrc]
     );
 
-    const visibleImages = expanded ? images : images.slice(0, 3);
+    const responsiveImages = useMemo(
+        () => getEntryImagesForViewport(images, belowSm),
+        [belowSm, images]
+    );
+    const visibleImages = expanded ? responsiveImages : responsiveImages.slice(0, 3);
 
     const openAt = useCallback((i: number) => {
         setIndex(i);
@@ -59,13 +72,18 @@ export default function EntryPage({ entry }: EntryPageProps) {
     }, []);
     const close = useCallback(() => setLightboxOpen(false), []);
     const prev = useCallback(
-        () => setIndex((i) => (images.length ? (i - 1 + images.length) % images.length : 0)),
-        [images.length]
+        () => setIndex((i) => (responsiveImages.length ? (i - 1 + responsiveImages.length) % responsiveImages.length : 0)),
+        [responsiveImages.length]
     );
     const next = useCallback(
-        () => setIndex((i) => (images.length ? (i + 1) % images.length : 0)),
-        [images.length]
+        () => setIndex((i) => (responsiveImages.length ? (i + 1) % responsiveImages.length : 0)),
+        [responsiveImages.length]
     );
+
+    useEffect(() => {
+        setIndex((current) => Math.min(current, Math.max(0, responsiveImages.length - 1)));
+        if (responsiveImages.length === 0) setLightboxOpen(false);
+    }, [responsiveImages.length]);
 
     // Prevent background scroll when lightbox is open
     useEffect(() => {
@@ -110,7 +128,7 @@ export default function EntryPage({ entry }: EntryPageProps) {
                             <button
                                 key={`${img.src}-${i}`}
                                 onClick={() => openAt(i)}
-                                className={`${img.isReport ? "hidden sm:block" : "block"} group w-full rounded-xl border border-border/70 bg-card/80 shadow-sm overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background`}
+                                className="group block w-full rounded-xl border border-border/70 bg-card/80 shadow-sm overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
                                 aria-label={`Open image ${i + 1} in lightbox`}
                             >
                                 <div className="relative w-full overflow-hidden">
@@ -128,7 +146,7 @@ export default function EntryPage({ entry }: EntryPageProps) {
                         ))}
                     </div>
 
-                    {entry.images.length > 3 && (
+                    {responsiveImages.length > 3 && (
                         <button
                             onClick={() => setExpanded(!expanded)}
                             className="mt-4 inline-flex min-h-11 items-center px-2 text-muted-foreground underline text-sm hover:text-foreground transition-colors"
@@ -140,7 +158,7 @@ export default function EntryPage({ entry }: EntryPageProps) {
             </Card>
 
             {/* LIGHTBOX */}
-            {lightboxOpen && images[index] && (
+            {lightboxOpen && responsiveImages[index] && (
                 <div
                     role="dialog"
                     aria-modal="true"
@@ -161,9 +179,9 @@ export default function EntryPage({ entry }: EntryPageProps) {
 
                         <div className="relative w-full h-[70vh] md:h-[80vh]">
                             <NextImage
-                                key={images[index].src}
-                                src={images[index].src}
-                                alt={images[index].alt}
+                                key={responsiveImages[index].src}
+                                src={responsiveImages[index].src}
+                                alt={responsiveImages[index].alt}
                                 fill
                                 priority
                                 sizes="90vw"
@@ -173,7 +191,7 @@ export default function EntryPage({ entry }: EntryPageProps) {
 
                         <div className="mt-3 flex items-center justify-between text-white/90 text-sm">
                             <div className="flex flex-wrap gap-2">
-                                <span>{index + 1} / {images.length}</span>
+                                <span>{index + 1} / {responsiveImages.length}</span>
                             </div>
                             <div className="flex gap-3">
                                 <button onClick={prev} className="inline-flex min-h-11 items-center px-2 underline" aria-label="Previous image">Prev</button>
