@@ -151,7 +151,7 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
 
                         {/* Meta + controls */}
                         <div className="mt-3 flex items-center justify-between text-white/90 text-sm">
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
                                 <span>
                                     {index + 1} / {images.length}
                                 </span>
