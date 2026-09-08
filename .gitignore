@@ -45,7 +45,7 @@ logs/generation.log
 /public/images/*
 !public/images/
 !public/images/placeholder.png
-!public/images/banner.jpg
+!public/images/banner.webp
 
 # Content - JSON Entries
 /content/entries/*

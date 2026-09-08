@@ -8,7 +8,7 @@ export default function Home() {
       {/* Banner Section */}
       <div className="relative w-full h-[30vh]">
         <Image
-          src="/images/banner.jpg" // your optimized 3840x648 file here
+          src="/images/banner.webp" // your optimized 3840x648 file here
           alt="90s Buenos Aires underground scene"
           fill
           priority
