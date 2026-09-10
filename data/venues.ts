@@ -214,7 +214,7 @@ export const venues: Venue[] = [
   },
   {
     "name": "Home",
-    "address": "Ramos Mejía"
+    "address": "Av. de Mayo, Ramos Mejía"
   },
   {
     "name": "Hook",
@@ -431,10 +431,6 @@ export const venues: Venue[] = [
   {
     "name": "The Probe",
     "address": "Hipólito Yrigoyen 3750"
-  },
-  {
-    "name": "UNLM",
-    "address": "Florencio Varela 1903 (San Justo)"
   },
   {
     "name": "Vélez Sarsfield",
