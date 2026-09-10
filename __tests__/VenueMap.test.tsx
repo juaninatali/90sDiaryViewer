@@ -38,8 +38,8 @@ test("continues after a failed address, fits successful markers, and cleans up",
     maps: { importLibrary, LatLngBounds: jest.fn().mockImplementation(() => ({ extend })) },
   } });
   const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
-  const entries = [" Unknown 123 ", "Corrientes 319", " Corrientes 319 "].map((location, index): DiaryEntry => ({
-    id: String(index), title: "", date: "", location, text: "", tags: [], images: [],
+  const entries = [["Venue: Aion", "Venue: Goethe Institut", "Venue: El Santo", "Venue: Unmatched", "Artist: Other"], ["Venue: Goethe Institut"]].map((tags, index): DiaryEntry => ({
+    id: String(index), title: "", date: "", location: "Never use this address", text: "", tags, images: [],
   }));
   const view = render(<VenueMap entries={entries} />);
   try {
@@ -48,9 +48,15 @@ test("continues after a failed address, fits successful markers, and cleans up",
     });
     await waitFor(() => expect(screen.getByRole("status").textContent).toContain("1 of 2 archive locations shown"));
     expect(geocode).toHaveBeenCalledTimes(2);
-    expect(geocode).toHaveBeenLastCalledWith({ address: "Corrientes 319, Buenos Aires, Argentina" });
-    expect(warn).toHaveBeenCalledWith("Could not geocode archive location:", " Unknown 123 ");
+    expect(geocode).toHaveBeenLastCalledWith({
+      address: "Av. Corrientes 319, Buenos Aires, Argentina",
+      bounds: { south: -35.1, west: -59.2, north: -34.1, east: -57.7 },
+    });
+    expect(warn).toHaveBeenCalledWith("Could not geocode archive venue:", "Aion", "Hipólito Yrigoyen 1115");
+    expect(warn).toHaveBeenCalledWith("Unmatched archive Venue tag:", "Unmatched");
+    expect(warn).toHaveBeenCalledWith("Archive venue has no usable catalogue address:", "El Santo");
     expect(AdvancedMarkerElement).toHaveBeenCalledTimes(1);
+    expect(AdvancedMarkerElement).toHaveBeenCalledWith(expect.objectContaining({ title: "Goethe Institut — Av. Corrientes 319", zIndex: 1 }));
     expect(extend).toHaveBeenCalledWith(position);
     expect(fitBounds).toHaveBeenCalledTimes(1);
     view.unmount();

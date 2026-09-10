@@ -1,7 +1,8 @@
 /// <reference types="google.maps" />
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { groupLocations, normalizeGeocodingAddress } from "@/lib/locations";
+import { resolveReferencedVenues, normalizeGeocodingAddress } from "@/lib/locations";
+import { venues } from "@/data/venues";
 import type { DiaryEntry } from "@/types/diary";
 
 type MapsWindow = Window & {
@@ -39,11 +40,14 @@ function loadGoogleMaps(apiKey: string): Promise<void> {
 
 export default function VenueMap({ entries }: { entries: DiaryEntry[] }) {
   const container = useRef<HTMLDivElement>(null);
-  const locations = useMemo(() => groupLocations(entries), [entries]);
+  const resolved = useMemo(() => resolveReferencedVenues(entries, venues), [entries]);
   const [status, setStatus] = useState("Loading map...");
   const [error, setError] = useState("");
 
   useEffect(() => {
+    const { locations, unmatched, missingAddresses } = resolved;
+    unmatched.forEach((name) => console.warn("Unmatched archive Venue tag:", name));
+    missingAddresses.forEach((name) => console.warn("Archive venue has no usable catalogue address:", name));
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAP_ID;
     if (!apiKey?.trim() || !mapId?.trim()) {
@@ -78,24 +82,28 @@ export default function VenueMap({ entries }: { entries: DiaryEntry[] }) {
         const bounds = new google.maps.LatLngBounds();
         let failed = 0;
         // Sequential requests avoid sending the entire archive in one burst.
-        for (const location of locations) {
+        for (const [index, location] of locations.entries()) {
           if (cancelled) return;
           setStatus(`Locating archive addresses (${markers.length + failed}/${locations.length})...`);
           try {
             const response = await geocoder.geocode({
               address: normalizeGeocodingAddress(location.address),
+              // Prefer the metropolitan area without restricting results or
+              // replacing an explicitly named catalogue locality.
+              bounds: { south: -35.1, west: -59.2, north: -34.1, east: -57.7 },
             });
             if (cancelled) return;
             const position = response.results[0]?.geometry.location;
             if (!position) throw new Error("No geocoding results");
             markers.push(new markerLibrary.AdvancedMarkerElement({
-              map, position, title: location.address,
+              map, position, title: `${location.name} — ${location.address}`,
+              zIndex: locations.length - index,
             }));
             bounds.extend(position);
           } catch (geocodingError) {
             if (cancelled) return;
             failed++;
-            console.warn("Could not geocode archive location:", location.entries[0].location);
+            console.warn("Could not geocode archive venue:", location.name, location.address);
             if (typeof geocodingError === "object" && geocodingError !== null
               && "code" in geocodingError && geocodingError.code === "REQUEST_DENIED") {
               setError("Google denied geocoding access. Check that the Geocoding API is enabled and allowed by the API key restrictions, then reload.");
@@ -117,7 +125,7 @@ export default function VenueMap({ entries }: { entries: DiaryEntry[] }) {
       markers.forEach((marker) => { marker.map = null; });
       if (mapsWindow.gm_authFailure === authFailure) mapsWindow.gm_authFailure = previousAuthFailure;
     };
-  }, [locations]);
+  }, [resolved]);
 
   return (
     <section aria-label="Archive locations">

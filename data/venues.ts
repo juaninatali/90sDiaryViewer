@@ -134,7 +134,7 @@ export const venues: Venue[] = [
   },
   {
     "name": "El Cielo",
-    "address": "Av. Costanera y Sarmiento"
+    "address": "Av. Costanera Rafael Obligado y Av. Sarmiento"
   },
   {
     "name": "El Dorado",
@@ -146,7 +146,7 @@ export const venues: Venue[] = [
   },
   {
     "name": "El Odeón",
-    "address": "Av. Casares y Av. Sarmiento"
+    "address": "Av. Sarmiento y Av. Casares"
   },
   {
     "name": "El Ojo",
@@ -166,7 +166,7 @@ export const venues: Venue[] = [
   },
   {
     "name": "El Sótano",
-    "address": "Pte. Perón 1372"
+    "address": "Tte. Gral. Juan Domingo Perón 1372"
   },
   {
     "name": "El Templo",
@@ -210,7 +210,11 @@ export const venues: Venue[] = [
   },
   {
     "name": "Hell's",
-    "address": "Mitre 23 (Ramos Mejía)"
+    "address": "Bartolomé Mitre 23 (Ramos Mejía)"
+  },
+  {
+    "name": "Home",
+    "address": "Ramos Mejía"
   },
   {
     "name": "Hook",
@@ -237,6 +241,10 @@ export const venues: Venue[] = [
     "address": "25 de Mayo 722"
   },
   {
+    "name": "La Constitución",
+    "address": null
+  },
+  {
     "name": "La Embajada",
     "address": "Scalabrini Ortiz 56"
   },
@@ -251,6 +259,10 @@ export const venues: Venue[] = [
   {
     "name": "La Morocha",
     "address": "Dorrego y Libertador"
+  },
+  {
+    "name": "La Plage",
+    "address": null
   },
   {
     "name": "Lagarto",
@@ -354,7 +366,7 @@ export const venues: Venue[] = [
   },
   {
     "name": "Puente Mitre",
-    "address": "Av. Casares y Av. Sarmiento"
+    "address": "Av. Sarmiento y Av. Casares"
   },
   {
     "name": "Requiem",
@@ -414,7 +426,7 @@ export const venues: Venue[] = [
   },
   {
     "name": "The Age of Communication",
-    "address": "Marcelo T. de Alvear 405"
+    "address": "Marcelo Torcuato de Alvear 405"
   },
   {
     "name": "The Probe",
