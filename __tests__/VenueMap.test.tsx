@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 import { act, render, screen, waitFor } from "@testing-library/react";
 import VenueMap from "@/components/VenueMap";
-import type { DiaryEntry } from "@/types/diary";
+import type { MapEntry } from "@/types/map";
 
 jest.mock("@/data/venues", () => ({ venues: [
   { name: "Aion", address: "Hipólito Yrigoyen 1115" },
@@ -58,8 +58,8 @@ test("continues after a failed address, fits successful markers, and cleans up",
     maps: { importLibrary, LatLngBounds: jest.fn().mockImplementation(() => ({ extend })) },
   } });
   const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
-  const entries = [["Venue: Aion", "Venue: Goethe Institut", "Venue: El Santo", "Venue: Unmatched", "Artist: Other"], ["Venue: Goethe Institut", "Venue: Later venue", "Venue: <b>Archive venue</b>"]].map((tags, index): DiaryEntry => ({
-    id: String(index), title: "", date: "", location: "Never use this address", text: "", tags, images: [],
+  const entries = [["Venue: Aion", "Venue: Goethe Institut", "Venue: El Santo", "Venue: Unmatched", "Artist: Other"], ["Venue: Goethe Institut", "Venue: Later venue", "Venue: <b>Archive venue</b>"]].map((tags, index): MapEntry => ({
+    id: String(index), date: "", tags,
   }));
   const view = render(<VenueMap entries={entries} />);
   try {

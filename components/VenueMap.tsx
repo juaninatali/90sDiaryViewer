@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { resolveReferencedVenues, normalizeGeocodingAddress, groupVenuesByAddress } from "@/lib/locations";
 import { venues } from "@/data/venues";
-import type { DiaryEntry } from "@/types/diary";
+import type { MapEntry } from "@/types/map";
 
 type MapsWindow = Window & {
   initArchiveMap?: () => void;
@@ -38,7 +38,7 @@ function loadGoogleMaps(apiKey: string): Promise<void> {
   return mapsLoader;
 }
 
-export default function VenueMap({ entries }: { entries: DiaryEntry[] }) {
+export default function VenueMap({ entries }: { entries: MapEntry[] }) {
   const container = useRef<HTMLDivElement>(null);
   const resolved = useMemo(() => resolveReferencedVenues(entries, venues), [entries]);
   const [status, setStatus] = useState("Loading map...");

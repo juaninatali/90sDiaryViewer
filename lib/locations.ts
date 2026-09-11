@@ -1,10 +1,10 @@
-import type { DiaryEntry } from "@/types/diary";
+import type { MapEntry } from "@/types/map";
 import type { Venue } from "@/data/venues";
 
 export type ArchiveVenue = {
   name: string;
   address: string;
-  entries: DiaryEntry[];
+  entries: MapEntry[];
 };
 
 export type VenueLocation = {
@@ -39,8 +39,8 @@ export function normalizeGeocodingAddress(address: string): string {
   return hasCountry ? normalized : `${normalized}, Argentina`;
 }
 
-export function resolveReferencedVenues(entries: DiaryEntry[], catalogue: Venue[]) {
-  const referenced = new Map<string, DiaryEntry[]>();
+export function resolveReferencedVenues(entries: MapEntry[], catalogue: Venue[]) {
+  const referenced = new Map<string, MapEntry[]>();
   for (const entry of entries) {
     const names = new Set<string>();
     for (const tag of Array.isArray(entry.tags) ? entry.tags : []) {

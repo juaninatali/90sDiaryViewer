@@ -2,9 +2,9 @@ import type { GetStaticProps } from "next";
 import { Layout } from "@/components/Layout";
 import VenueMap from "@/components/VenueMap";
 import { getAllEntries } from "@/lib/entries";
-import type { DiaryEntry } from "@/types/diary";
+import type { MapEntry } from "@/types/map";
 
-type MapPageProps = { entries: DiaryEntry[] };
+type MapPageProps = { entries: MapEntry[] };
 
 export default function MapPage({ entries }: MapPageProps) {
   return (
@@ -16,5 +16,7 @@ export default function MapPage({ entries }: MapPageProps) {
 }
 
 export const getStaticProps: GetStaticProps<MapPageProps> = async () => ({
-  props: { entries: getAllEntries() },
+  props: {
+    entries: getAllEntries().map(({ id, date, tags }: MapEntry) => ({ id, date, tags })),
+  },
 });
