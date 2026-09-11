@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "start http://localhost:3000 && next dev --turbopack",
     "generate-entries": "ts-node scripts/generateEntries.ts",
+    "generate-venues": "ts-node --project scripts/tsconfig.venues.json scripts/generateVenues.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -27,6 +28,7 @@
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@testing-library/react": "^16.3.0",
+    "@types/google.maps": "^3.66.2",
     "@types/jest": "^29.5.0",
     "@types/node": "^20.17.47",
     "@types/react": "^19",
