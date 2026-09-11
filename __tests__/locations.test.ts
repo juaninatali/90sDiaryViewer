@@ -1,4 +1,4 @@
-import { resolveReferencedVenues, normalizeGeocodingAddress } from "@/lib/locations";
+import { resolveReferencedVenues, normalizeGeocodingAddress, groupVenuesByAddress } from "@/lib/locations";
 import type { DiaryEntry } from "@/types/diary";
 import type { Venue } from "@/data/venues";
 
@@ -78,4 +78,30 @@ test.each([
   ["Av. Antártida Argentina 1160", "Av. Antártida Argentina 1160, Buenos Aires, Argentina"],
 ])("includes province and country context without changing locality: %s", (input, expected) => {
   expect(normalizeGeocodingAddress(input)).toBe(expected);
+});
+
+test("groups shared catalogue addresses with chronological labels and retains each venue's entries", () => {
+  const catalogue: Venue[] = [
+    { name: "Lisboa", address: "Bartolomé Mitre 1851 " },
+    { name: "Fellini", address: "Bartolomé Mitre 1851" },
+    { name: "Nuevo Requiem", address: "Av. De Mayo 948" },
+    { name: "El Pantheon", address: "Av. De Mayo 948" },
+    { name: "El Odeón", address: "Av. Casares y Av. Sarmiento" },
+    { name: "Puente Mitre", address: "Av. Casares y Av. Sarmiento" },
+  ];
+  const entries = catalogue.map((venue, index) => ({
+    ...entry([`Venue: ${venue.name}`], String(index)),
+    date: index % 2 === 0 ? "1999-01-01" : "1994-01-01",
+  }));
+  const resolved = resolveReferencedVenues(entries, catalogue);
+  const snapshot = JSON.stringify(resolved);
+  const grouped = groupVenuesByAddress(resolved.locations);
+  expect(grouped.map(({ name, address }) => ({ name, address }))).toEqual([
+    { name: "Fellini / Lisboa", address: "Bartolomé Mitre 1851" },
+    { name: "El Pantheon / Nuevo Requiem", address: "Av. De Mayo 948" },
+    { name: "Puente Mitre / El Odeón", address: "Av. Casares y Av. Sarmiento" },
+  ]);
+  expect(grouped[0].venues[0].entries).toEqual([entries[1]]);
+  expect(grouped[0].venues[1].entries).toEqual([entries[0]]);
+  expect(JSON.stringify(resolved)).toBe(snapshot);
 });

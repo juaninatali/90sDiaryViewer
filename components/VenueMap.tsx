@@ -1,7 +1,7 @@
 /// <reference types="google.maps" />
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { resolveReferencedVenues, normalizeGeocodingAddress } from "@/lib/locations";
+import { resolveReferencedVenues, normalizeGeocodingAddress, groupVenuesByAddress } from "@/lib/locations";
 import { venues } from "@/data/venues";
 import type { DiaryEntry } from "@/types/diary";
 
@@ -45,7 +45,8 @@ export default function VenueMap({ entries }: { entries: DiaryEntry[] }) {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const { locations, unmatched, missingAddresses } = resolved;
+    const { unmatched, missingAddresses } = resolved;
+    const locations = groupVenuesByAddress(resolved.locations);
     unmatched.forEach((name) => console.warn("Unmatched archive Venue tag:", name));
     missingAddresses.forEach((name) => console.warn("Archive venue has no usable catalogue address:", name));
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -57,6 +58,8 @@ export default function VenueMap({ entries }: { entries: DiaryEntry[] }) {
 
     let cancelled = false;
     const markers: google.maps.marker.AdvancedMarkerElement[] = [];
+    const markerListeners: google.maps.MapsEventListener[] = [];
+    let infoWindow: google.maps.InfoWindow | undefined;
     const mapsWindow = window as MapsWindow;
     const previousAuthFailure = mapsWindow.gm_authFailure;
     const authFailure = () => {
@@ -79,6 +82,8 @@ export default function VenueMap({ entries }: { entries: DiaryEntry[] }) {
           center: { lat: -34.6037, lng: -58.3816 }, zoom: 12, mapId,
         });
         const geocoder = new geocodingLibrary.Geocoder();
+        const venueInfoWindow = new mapsLibrary.InfoWindow();
+        infoWindow = venueInfoWindow;
         const bounds = new google.maps.LatLngBounds();
         let failed = 0;
         // Sequential requests avoid sending the entire archive in one burst.
@@ -95,9 +100,23 @@ export default function VenueMap({ entries }: { entries: DiaryEntry[] }) {
             if (cancelled) return;
             const position = response.results[0]?.geometry.location;
             if (!position) throw new Error("No geocoding results");
-            markers.push(new markerLibrary.AdvancedMarkerElement({
-              map, position, title: `${location.name} — ${location.address}`,
+            const marker = new markerLibrary.AdvancedMarkerElement({
+              map, position, title: location.name,
               zIndex: locations.length - index,
+            });
+            markers.push(marker);
+            markerListeners.push(marker.addListener("click", () => {
+              const content = document.createElement("div");
+              content.className = "space-y-1 p-1 text-gray-900";
+              const name = document.createElement("h2");
+              name.className = "text-lg font-semibold";
+              name.textContent = location.name;
+              const address = document.createElement("p");
+              address.className = "text-sm";
+              address.textContent = location.address;
+              content.append(name, address);
+              venueInfoWindow.setContent(content);
+              venueInfoWindow.open({ map, anchor: marker });
             }));
             bounds.extend(position);
           } catch (geocodingError) {
@@ -122,6 +141,8 @@ export default function VenueMap({ entries }: { entries: DiaryEntry[] }) {
     void initialize();
     return () => {
       cancelled = true;
+      infoWindow?.close();
+      markerListeners.forEach((listener) => listener.remove());
       markers.forEach((marker) => { marker.map = null; });
       if (mapsWindow.gm_authFailure === authFailure) mapsWindow.gm_authFailure = previousAuthFailure;
     };

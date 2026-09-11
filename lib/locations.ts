@@ -7,6 +7,28 @@ export type ArchiveVenue = {
   entries: DiaryEntry[];
 };
 
+export type VenueLocation = {
+  name: string;
+  address: string;
+  venues: ArchiveVenue[];
+};
+
+// Input is already ordered by earliest diary reference by the resolver.
+export function groupVenuesByAddress(venues: ArchiveVenue[]): VenueLocation[] {
+  const groups = new Map<string, VenueLocation>();
+  for (const venue of venues) {
+    const key = venue.address.trim();
+    const group = groups.get(key);
+    if (group) {
+      group.venues.push(venue);
+      group.name = group.venues.map(({ name }) => name).join(" / ");
+    } else {
+      groups.set(key, { name: venue.name, address: venue.address, venues: [venue] });
+    }
+  }
+  return [...groups.values()];
+}
+
 export function normalizeGeocodingAddress(address: string): string {
   let normalized = address.trim();
   // Add province/country context only to the query, preserving locality text.
