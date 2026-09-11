@@ -11,12 +11,6 @@ import { isReportImage } from "@/lib/images";
 const DEFAULT_START_DATE = "1995-01-01";
 const DEFAULT_END_DATE = "1995-12-31";
 
-const TAG_GROUPS = [
-  { prefix: "Artist", title: "Artist tags" },
-  { prefix: "Genre", title: "Genre tags" },
-  { prefix: "Venue", title: "Venue tags" },
-];
-
 type SearchItem = {
   id: string;
   title: string;
@@ -110,9 +104,6 @@ export default function DiaryViewer() {
     setUrlHydrated(true);
   }, [router.isReady, router.query, urlHydrated]);
 
-  const isFiltering =
-    !!search || !!activeTag || !!activeYear || !!startDate || !!endDate;
-
   function clearAllFilters() {
     setSearch("");
     setActiveTag("");
@@ -124,29 +115,6 @@ export default function DiaryViewer() {
     setDatesPrimed(false);
     setOffset(0);
   }
-
-  const groupedFacetTags = useMemo(() => {
-    type Group = { title: string; tags: Array<{ tag: string; count: number; label: string }> };
-    const base: Group[] = TAG_GROUPS.map(group => ({ title: group.title, tags: [] }));
-    const other: Group = { title: "Other tags", tags: [] };
-
-    facetTags.forEach(entry => {
-      const [rawPrefix, ...restParts] = entry.tag.split(":");
-      const prefix = rawPrefix?.trim();
-      const label = restParts.join(":").trim() || entry.tag;
-      const bucket = TAG_GROUPS.find(group => group.prefix === prefix)
-        ? base[TAG_GROUPS.findIndex(group => group.prefix === prefix)]
-        : other;
-      bucket.tags.push({ ...entry, label });
-    });
-
-    base.forEach(group =>
-      group.tags.sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: "base" }))
-    );
-    other.tags.sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: "base" }));
-
-    return [...base.filter(group => group.tags.length > 0), ...(other.tags.length ? [other] : [])];
-  }, [facetTags]);
 
   const sortedFacetTags = useMemo(() => {
     const buckets: Record<string, { tag: string; count: number }[]> = {
