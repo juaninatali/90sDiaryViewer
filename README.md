@@ -1,33 +1,31 @@
-
 # 90s Diary Archive
 
 A Next.js application for exploring a personal archive of diary entries documenting the underground electronic music scene in 1990s Buenos Aires.
 
-The app allows users to browse, search, and filter entries by text, tags, year, and date ranges, with associated scanned images for each entry.
+The app allows users to browse diary entries, search the archive, explore scanned images, and discover the archival locations of venues referenced in the diaries.
 
----
 
 ## Features
 
-* 🔍 Full-text search across diary entries
-* 🏷️ Tag-based filtering (artists, venues, genres, etc.)
-* 📅 Year and date range filtering
-* 🖼️ Image previews with expandable galleries
-* 🌙 Light / Dark mode toggle
-* ⚡ Static generation for fast performance
+- Search diary text and tags, with tag, year, and date-range filters.
+- Paginated search results with excerpts and image previews.
+- Individual diary pages with archival text and image viewing.
+- A dedicated image gallery with year/tag filters and incremental loading.
+- An interactive Google Map of venues referenced by diary Venue tags.
+- Clickable map InfoWindows displaying archival venue names and addresses.
+- Light and dark them
+- Static generation for fast performance
 
----
 
 ## Tech Stack
 
-* **Next.js** (Pages Router)
-* **React**
-* **TypeScript**
-* **Tailwind CSS**
-* **shadcn/ui components**
-* **next-themes** (dark/light mode)
+- Next.js 15, using the Pages Router and API routes
+- React 19 and TypeScript
+- Tailwind CSS, shadcn/ui components, and next-themes
+- Google Maps JavaScript API, Geocoder, and Advanced Markers
+- csv-parse for CSV imports
+- Jest, ts-jest, and React Testing Library
 
----
 
 ## Getting Started
 
@@ -37,15 +35,16 @@ Install dependencies:
 npm install
 ```
 
-Run the development server:
+Prepare the local diary JSON and image assets described below, then start development:
 
 ```bash
 npm run dev
 ```
 
-Then open [http://localhost:3000](http://localhost:3000) with your browser to access the app.
+The current development script uses the Windows `start` command to open the browser. On other platforms, run `npx next dev --turbopack` directly.
 
-## Data Pipeline (Important)
+
+## Archival data
 
 This project uses a **CSV → JSON → UI** pipeline.
 
@@ -63,89 +62,102 @@ npm run generate-entries
 
 This will:
 
-* Convert CSV → JSON
-* Output files into: `/content/entries/`
-* Validate referenced images
+- Convert CSV → JSON
+- Output files into: `/content/entries/`
+- Validate referenced images
 
----
+Diary content is archival source material: application changes should not rewrite the CSV, generated content, or historical wording.
+
 
 ## Images
 
-Diary images are expected in: `/public/images/`
+Place diary scans in `public/images/`. The full image collection is not included in Git; the ignore rules retain only the designated placeholder and banner assets.
 
-⚠️ Note:
 
-* Large image sets are **not included** in this repository
-* You may need to add your own images locally
-* Only sample images may be committed to keep repo size manageable
+## How it works
 
----
+### Search
 
-## Running Tests
+`DiaryViewer` requests filtered, paginated results from `/api/search` and filter options from `/api/facets`. Search filters operate on the server, and URL parameters retain the selected search state.
 
-```bash
-npm run test
+The response contains entry summaries, short excerpts, and up to three preview images per entry rather than the full archive. The current server implementation still reads and parses the archive through `getAllEntries()` for each search/facet request; a shared search index or read cache has not been implemented.
+
+### Gallery
+
+`/api/gallery` supplies image batches and `/api/gallery-facets` supplies filter options. The Gallery builds an image index from diary entries and caches it in the server process. Restart the server after changing source entries if an existing process has already built that index.
+
+### Map
+
+The Map follows this data flow:
+
+```text
+Diary Venue tags
+  → unique referenced venue names
+  → exact matches in data/venues.ts
+  → shared-address groups
+  → runtime Google geocoding
+  → Advanced Markers and InfoWindows
 ```
 
-Tests validate:
 
-* Entry loading logic
-* Data parsing
+### Rendering and deployment
 
----
+Individual diary pages and Map entry metadata use static generation. Search and Gallery rely on server API routes, so deployment must support the Next.js server rather than only static file hosting.
 
-## How It Works
+For a local production build:
 
-### Static Generation
+```bash
+npm run build
+npm run start
+```
 
-Entries are loaded at build time using `getStaticProps`, ensuring fast performance and SEO-friendly pages.
+Ensure diary JSON, images, and Map configuration are available to the relevant build/runtime environment. Avoid building into the same `.next` directory while a development server is using it.
 
-### Client-side Filtering
+## Scripts and validation
 
-The search UI:
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start development with Turbopack and open the browser on Windows |
+| `npm run build` | Create a production build |
+| `npm run start` | Serve the production build |
+| `npm run generate-entries` | Import diary CSV into entry JSON |
+| `npm run generate-venues` | Replace the venue catalogue from its CSV source |
+| `npm test` | Run the Jest suite |
+| `npm run lint` | Run the existing Next.js lint command |
 
-* Maintains local state for filters (text, tags, year, date range)
-* Filters entries dynamically in the browser
-* Displays helpful empty states when no results are found
+The test suite covers entry loading, text truncation, image handling, Gallery indexing, venue CSV parsing, venue resolution and address grouping, Map props projection, and Map component behaviour with mocked Google Maps APIs.
 
-### Theming
-
-Dark/light mode is handled via `next-themes`, with hydration-safe rendering to prevent UI flicker.
-
----
 
 ## Project Structure
 
 ```
 .
-├── components                  # UI components
-├── content/entries/            # Auto-generated JSON files
-├── data/diary.csv              # Source data
-├── lib/entries.ts              # Entry loading logic
-├── logs                        # generateEntries logging
-├── pages                       # Next.js pages
-├── public/images/              # Diary scans
-├── scripts/generateEntries.ts  # Content preparation script (CSV → JSON pipeline)
-├── styles                      # Tailwind styles
-└── types                       # TypeScript types
+├── components                  # Shared UI components
+├── content/entries/            # Generated diary JSON (local)
+├── data                        # Diary source data
+├── lib                         # Diary loading logic
+├── pages                       # Next.js page router screens and entry pages
+├── public/images/              # Local archival scans
+├── scripts                     # Diary & Venue importer scripts
+├── styles                      # Tailwind application styles
+├── types                       # TypeScript types
+└── __tests__/                  # Jest tests
 ```
 
----
 
 ## ⚠️ Notes & Considerations
 
-* This project is based on a **personal archive**
-* Some content may reference real people, venues, or events
-* Image assets and full datasets are intentionally limited in this repo
+- This project is based on a **personal archive**
+- Some content may reference real people, venues, or events
+- Image assets and full datasets are intentionally limited in this repo
 
----
 
 ## Deployment
 
 The app can be easily deployed using platforms like:
 
-* Vercel (recommended for Next.js)
-* Netlify
+- Vercel (recommended for Next.js)
+- Netlify
 
 Check out [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
