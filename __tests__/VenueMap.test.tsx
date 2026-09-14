@@ -2,6 +2,10 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
 import VenueMap from "@/components/VenueMap";
 import type { MapEntry } from "@/types/map";
+import { geocodingCacheKey } from "@/lib/geocodingCache";
+
+beforeEach(() => localStorage.clear());
+afterEach(() => localStorage.clear());
 
 jest.mock("@/data/venues", () => ({ venues: [
   { name: "Aion", address: "Hipólito Yrigoyen 1115" },
@@ -113,7 +117,7 @@ test("continues after a failed address, fits successful markers, and cleans up",
     expect(AdvancedMarkerElement).toHaveBeenCalledWith(expect.objectContaining({ title: "<b>Archive venue</b>" }));
     expect(popup.open).toHaveBeenLastCalledWith({ map: expect.anything(), anchor: createdMarkers[1] });
     expect(InfoWindow).toHaveBeenCalledTimes(1);
-    expect(extend).toHaveBeenCalledWith(position);
+    expect(extend).toHaveBeenCalledWith({ lat: -34.6, lng: -58.38 });
     expect(fitBounds).toHaveBeenCalledTimes(1);
     const closeButton = nextContent.querySelector("button")!;
     expect(closeButton.getAttribute("aria-label")).toBe("Close venue information");
@@ -123,6 +127,21 @@ test("continues after a failed address, fits successful markers, and cleans up",
     expect(createdMarkers.every((marker) => marker.map === null)).toBe(true);
     expect(popup.close).toHaveBeenCalledTimes(2);
     expect(removeListener).toHaveBeenCalledTimes(2);
+    expect(localStorage.length).toBe(2);
+    expect(localStorage.getItem(geocodingCacheKey("Hipólito Yrigoyen 1115"))).toBeNull();
+    // Simulate a new page mount with the same persistent browser storage.
+    geocode.mockClear();
+    const cachedView = render(<VenueMap entries={entries.filter((entry) => entry.id === "1")} />);
+    try {
+      await waitFor(() => expect(screen.getByRole("status").textContent).toContain("2 of 2 archive locations shown"));
+      expect(geocode).not.toHaveBeenCalled();
+      expect(AdvancedMarkerElement).toHaveBeenCalledTimes(4);
+      expect(fitBounds).toHaveBeenCalledTimes(2);
+      clickHandlers[2]();
+      const cachedContent: HTMLElement = popup.setContent.mock.calls[2][0];
+      expect(Array.from(cachedContent.querySelectorAll("h2"), (node) => node.textContent)).toEqual(["Goethe Institut", "Later venue"]);
+      expect(cachedContent.querySelectorAll("a")).toHaveLength(2);
+    } finally { cachedView.unmount(); }
   } finally {
     view.unmount();
     warn.mockRestore();

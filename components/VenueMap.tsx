@@ -1,7 +1,8 @@
 /// <reference types="google.maps" />
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { resolveReferencedVenues, normalizeGeocodingAddress, groupVenuesByAddress } from "@/lib/locations";
+import { resolveReferencedVenues, groupVenuesByAddress } from "@/lib/locations";
+import { createGeocodingLookup, GEOCODING_BOUNDS } from "@/lib/geocodingCache";
 import { venues } from "@/data/venues";
 import type { MapEntry } from "@/types/map";
 
@@ -60,6 +61,7 @@ export default function VenueMap({ entries }: { entries: MapEntry[] }) {
     const markers: google.maps.marker.AdvancedMarkerElement[] = [];
     const markerListeners: google.maps.MapsEventListener[] = [];
     let infoWindow: google.maps.InfoWindow | undefined;
+    let cacheCleanup: number | undefined;
     const mapsWindow = window as MapsWindow;
     const previousAuthFailure = mapsWindow.gm_authFailure;
     const authFailure = () => {
@@ -84,6 +86,13 @@ export default function VenueMap({ entries }: { entries: MapEntry[] }) {
           colorScheme: coreLibrary.ColorScheme.DARK,
         });
         const geocoder = new geocodingLibrary.Geocoder();
+        const coordinates = createGeocodingLookup(locations.map(({ address }) => address), async (query) => {
+          const response = await geocoder.geocode({ address: query, bounds: GEOCODING_BOUNDS });
+          const position = response.results[0]?.geometry.location;
+          if (!position) throw new Error("No geocoding results");
+          return { lat: position.lat(), lng: position.lng() };
+        });
+        cacheCleanup = window.setInterval(coordinates.prune, 60000);
         const venueInfoWindow = new mapsLibrary.InfoWindow({ headerDisabled: true });
         infoWindow = venueInfoWindow;
         const bounds = new google.maps.LatLngBounds();
@@ -93,15 +102,8 @@ export default function VenueMap({ entries }: { entries: MapEntry[] }) {
           if (cancelled) return;
           setStatus(`Locating archive addresses (${markers.length + failed}/${locations.length})...`);
           try {
-            const response = await geocoder.geocode({
-              address: normalizeGeocodingAddress(location.address),
-              // Prefer the metropolitan area without restricting results or
-              // replacing an explicitly named catalogue locality.
-              bounds: { south: -35.1, west: -59.2, north: -34.1, east: -57.7 },
-            });
+            const position = await coordinates.lookup(location.address);
             if (cancelled) return;
-            const position = response.results[0]?.geometry.location;
-            if (!position) throw new Error("No geocoding results");
             const marker = new markerLibrary.AdvancedMarkerElement({
               map, position, title: location.name,
               zIndex: locations.length - index,
@@ -167,6 +169,7 @@ export default function VenueMap({ entries }: { entries: MapEntry[] }) {
     void initialize();
     return () => {
       cancelled = true;
+      window.clearInterval(cacheCleanup);
       infoWindow?.close();
       markerListeners.forEach((listener) => listener.remove());
       markers.forEach((marker) => { marker.map = null; });
