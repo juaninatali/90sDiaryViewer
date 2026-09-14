@@ -4,7 +4,7 @@
   "author": "https://github.com/juaninatali",
   "scripts": {
     "dev": "start http://localhost:3000 && next dev --turbopack",
-    "generate-entries": "ts-node scripts/generateEntries.ts",
+    "generate-entries": "ts-node --project scripts/tsconfig.entries.json scripts/generateEntries.ts",
     "generate-venues": "ts-node --project scripts/tsconfig.venues.json scripts/generateVenues.ts",
     "build": "next build",
     "start": "next start",

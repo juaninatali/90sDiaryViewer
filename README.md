@@ -152,15 +152,6 @@ The test suite covers entry loading, text truncation, image handling, Gallery in
 - Image assets and full datasets are intentionally limited in this repo
 
 
-## Deployment
-
-The app can be easily deployed using platforms like:
-
-- Vercel (recommended for Next.js)
-- Netlify
-
-Check out [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
 ## License
 
 The source code is licensed under the MIT License.

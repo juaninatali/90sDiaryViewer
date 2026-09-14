@@ -1,10 +1,6 @@
 import fs from "fs";
 import path from "path";
 import { parse } from "csv-parse/sync";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Config
 const INPUT_CSV = path.join(__dirname, "../data/diary.csv");
