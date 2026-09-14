@@ -44,6 +44,11 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },
+  "overrides": {
+    "next": {
+      "postcss": "8.5.26"
+    }
+  },
   "allowScripts": {
     "@tailwindcss/oxide@4.1.13": true,
     "unrs-resolver@1.11.1": true,
