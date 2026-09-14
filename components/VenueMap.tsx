@@ -1,7 +1,8 @@
 /// <reference types="google.maps" />
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { resolveReferencedVenues, normalizeGeocodingAddress, groupVenuesByAddress } from "@/lib/locations";
+import { resolveReferencedVenues, groupVenuesByAddress } from "@/lib/locations";
+import { createGeocodingLookup, GEOCODING_BOUNDS } from "@/lib/geocodingCache";
 import { venues } from "@/data/venues";
 import type { MapEntry } from "@/types/map";
 
@@ -60,6 +61,7 @@ export default function VenueMap({ entries }: { entries: MapEntry[] }) {
     const markers: google.maps.marker.AdvancedMarkerElement[] = [];
     const markerListeners: google.maps.MapsEventListener[] = [];
     let infoWindow: google.maps.InfoWindow | undefined;
+    let cacheCleanup: number | undefined;
     const mapsWindow = window as MapsWindow;
     const previousAuthFailure = mapsWindow.gm_authFailure;
     const authFailure = () => {
@@ -72,17 +74,26 @@ export default function VenueMap({ entries }: { entries: MapEntry[] }) {
     async function initialize() {
       try {
         await loadGoogleMaps(apiKey!);
-        const [mapsLibrary, markerLibrary, geocodingLibrary] = await Promise.all([
+        const [mapsLibrary, markerLibrary, geocodingLibrary, coreLibrary] = await Promise.all([
           google.maps.importLibrary("maps") as Promise<google.maps.MapsLibrary>,
           google.maps.importLibrary("marker") as Promise<google.maps.MarkerLibrary>,
           google.maps.importLibrary("geocoding") as Promise<google.maps.GeocodingLibrary>,
+          google.maps.importLibrary("core") as Promise<google.maps.CoreLibrary>,
         ]);
         if (cancelled || !container.current) return;
         const map = new mapsLibrary.Map(container.current, {
           center: { lat: -34.6037, lng: -58.3816 }, zoom: 12, mapId,
+          colorScheme: coreLibrary.ColorScheme.DARK,
         });
         const geocoder = new geocodingLibrary.Geocoder();
-        const venueInfoWindow = new mapsLibrary.InfoWindow();
+        const coordinates = createGeocodingLookup(locations.map(({ address }) => address), async (query) => {
+          const response = await geocoder.geocode({ address: query, bounds: GEOCODING_BOUNDS });
+          const position = response.results[0]?.geometry.location;
+          if (!position) throw new Error("No geocoding results");
+          return { lat: position.lat(), lng: position.lng() };
+        });
+        cacheCleanup = window.setInterval(coordinates.prune, 60000);
+        const venueInfoWindow = new mapsLibrary.InfoWindow({ headerDisabled: true });
         infoWindow = venueInfoWindow;
         const bounds = new google.maps.LatLngBounds();
         let failed = 0;
@@ -91,15 +102,8 @@ export default function VenueMap({ entries }: { entries: MapEntry[] }) {
           if (cancelled) return;
           setStatus(`Locating archive addresses (${markers.length + failed}/${locations.length})...`);
           try {
-            const response = await geocoder.geocode({
-              address: normalizeGeocodingAddress(location.address),
-              // Prefer the metropolitan area without restricting results or
-              // replacing an explicitly named catalogue locality.
-              bounds: { south: -35.1, west: -59.2, north: -34.1, east: -57.7 },
-            });
+            const position = await coordinates.lookup(location.address);
             if (cancelled) return;
-            const position = response.results[0]?.geometry.location;
-            if (!position) throw new Error("No geocoding results");
             const marker = new markerLibrary.AdvancedMarkerElement({
               map, position, title: location.name,
               zIndex: locations.length - index,
@@ -107,15 +111,39 @@ export default function VenueMap({ entries }: { entries: MapEntry[] }) {
             markers.push(marker);
             markerListeners.push(marker.addListener("click", () => {
               const content = document.createElement("div");
-              content.className = "space-y-1 p-1 text-gray-900";
-              const name = document.createElement("h2");
-              name.className = "text-lg font-semibold";
-              name.textContent = location.name;
+              content.className = "relative space-y-3 p-1 pr-8 text-gray-900";
               const address = document.createElement("p");
               address.className = "text-sm";
               address.textContent = location.address;
-              content.append(name, address);
-              venueInfoWindow.setContent(content);
+              for (const venue of location.venues) {
+                const section = document.createElement("section");
+                const name = document.createElement("h2");
+                name.className = "text-lg font-semibold";
+                name.textContent = venue.name;
+                const entryCount = new Set(venue.entries.map(({ id }) => id)).size;
+                const details = document.createElement("p");
+                details.className = "text-sm";
+                details.append(`${entryCount} diary ${entryCount === 1 ? "entry" : "entries"} · `);
+                const link = document.createElement("a");
+                link.textContent = "View entries";
+                link.className = "text-blue-700 underline";
+                link.href = `/search?tag=${encodeURIComponent(`Venue: ${venue.name}`)}`;
+                details.append(link);
+                section.append(name, details);
+                content.append(section);
+              }
+              content.append(address);
+              const close = document.createElement("button");
+              close.type = "button";
+              close.setAttribute("aria-label", "Close venue information");
+              close.className = "absolute right-0 top-0 rounded px-1 text-xl leading-none hover:bg-gray-100 focus-visible:outline";
+              close.textContent = "×";
+              close.addEventListener("click", () => venueInfoWindow.close());
+              // Position the control independently of the content's vertical spacing.
+              const wrapper = document.createElement("div");
+              wrapper.className = "relative";
+              wrapper.append(content, close);
+              venueInfoWindow.setContent(wrapper);
               venueInfoWindow.open({ map, anchor: marker });
             }));
             bounds.extend(position);
@@ -141,6 +169,7 @@ export default function VenueMap({ entries }: { entries: MapEntry[] }) {
     void initialize();
     return () => {
       cancelled = true;
+      window.clearInterval(cacheCleanup);
       infoWindow?.close();
       markerListeners.forEach((listener) => listener.remove());
       markers.forEach((marker) => { marker.map = null; });
