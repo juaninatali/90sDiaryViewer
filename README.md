@@ -7,12 +7,12 @@ The app allows users to browse diary entries, search the archive, explore scanne
 
 ## Features
 
-- Search diary text and tags, with tag, year, and date-range filters.
-- Paginated search results with excerpts and image previews.
-- Individual diary pages with archival text and image viewing.
-- A dedicated image gallery with year/tag filters and incremental loading.
-- An interactive Google Map of venues referenced by diary Venue tags.
-- Clickable map InfoWindows displaying archival venue names and addresses.
+- Search diary text and tags, with tag, year, and date-range filters
+- Paginated search results with excerpts and image previews
+- Individual diary pages with archival text and image viewing
+- A dedicated image gallery with year/tag filters and incremental loading
+- An interactive Google Map of venues referenced by diary Venue tags
+- Clickable map InfoWindows displaying archival venue names and addresses
 - Light and dark them
 - Static generation for fast performance
 
