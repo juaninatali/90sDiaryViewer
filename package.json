@@ -8,7 +8,7 @@
     "generate-venues": "ts-node --project scripts/tsconfig.venues.json scripts/generateVenues.ts",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "test": "jest"
   },
   "dependencies": {
