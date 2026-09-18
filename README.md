@@ -80,7 +80,7 @@ Place diary scans in `public/images/`. The full image collection is not included
 
 `DiaryViewer` requests filtered, paginated results from `/api/search` and filter options from `/api/facets`. Search filters operate on the server, and URL parameters retain the selected search state.
 
-The response contains entry summaries, short excerpts, and up to three preview images per entry rather than the full archive. The current server implementation still reads and parses the archive through `getAllEntries()` for each search/facet request; a shared search index or read cache has not been implemented.
+The response contains entry summaries, short excerpts, and up to three preview images per entry rather than the full archive. Search and facets share a lazily initialized, process-local archive index, so a warm server instance reuses parsed entries. Production instances refresh on restart or redeployment; during development, entry file metadata is checked and the index reloads after generated JSON files change.
 
 ### Gallery
 

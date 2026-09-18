@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getAllEntries } from "@/lib/entries";
-import { DiaryEntry } from "@/types/diary";
+import { getArchiveEntries } from "@/lib/server/archiveIndex";
 
 // --- shape sent to the client (small + list-friendly) ---
 type SearchItem = {
@@ -34,7 +33,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     const lim = Math.max(1, Math.min(100, parseInt(limit, 10) || 24)); // cap for safety
 
     // NOTE: this keeps the heavy data server-side only
-    const entries: DiaryEntry[] = getAllEntries();
+    const entries = getArchiveEntries();
 
     // filtering mirrors your client-side logic in components/DiaryViewer.tsx
     const filtered = entries.filter((e) => {
