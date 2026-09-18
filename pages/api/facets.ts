@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getAllEntries } from "@/lib/entries";
+import { getArchiveEntries } from "@/lib/server/archiveIndex";
 
 export default function handler(_req: NextApiRequest, res: NextApiResponse) {
-  const entries = getAllEntries();
+  const entries = getArchiveEntries();
 
   const tagCounts = new Map<string, number>();
   const yearCounts = new Map<string, number>();

@@ -1,14 +1,15 @@
 import fs from 'fs';
 import path from 'path';
+import type { DiaryEntry } from '@/types/diary';
 
 const entriesDir = path.join(process.cwd(), 'content/entries');
 
-export function getAllEntries() {
+export function getAllEntries(): DiaryEntry[] {
     const filenames = fs.readdirSync(entriesDir);
     return filenames.map((filename) => {
         const filePath = path.join(entriesDir, filename);
         const fileContents = fs.readFileSync(filePath, 'utf8');
-        const entry = JSON.parse(fileContents);
+        const entry = JSON.parse(fileContents) as DiaryEntry;
         entry.text = entry.text.replace(/\\n/g, '\n');
         if (entry.images) {
             entry.images = entry.images.map((img: string) => {
