@@ -84,6 +84,9 @@ export default function VenueMap({ entries }: { entries: MapEntry[] }) {
         const map = new mapsLibrary.Map(container.current, {
           center: { lat: -34.6037, lng: -58.3816 }, zoom: 12, mapId,
           colorScheme: coreLibrary.ColorScheme.DARK,
+          // Cached coordinates can reach fitBounds before Google's asynchronous
+          // default is set. Allow a tight fractional fit from the first render.
+          isFractionalZoomEnabled: true,
         });
         const geocoder = new geocodingLibrary.Geocoder();
         const coordinates = createGeocodingLookup(locations.map(({ address }) => address), async (query) => {

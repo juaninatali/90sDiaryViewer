@@ -76,7 +76,7 @@ test("continues after a failed address, fits successful markers, and cleans up",
     await waitFor(() => expect(screen.getByRole("status").textContent).toContain("2 of 3 archive locations shown"));
     expect(geocode).toHaveBeenCalledTimes(3);
     expect(MapConstructor).toHaveBeenCalledWith(expect.any(HTMLElement), expect.objectContaining({
-      colorScheme: "DARK", mapId: "test-map",
+      colorScheme: "DARK", mapId: "test-map", isFractionalZoomEnabled: true,
     }));
     expect(geocode).toHaveBeenNthCalledWith(2, {
       address: "Av. Corrientes 319, Buenos Aires, Argentina",
@@ -137,6 +137,10 @@ test("continues after a failed address, fits successful markers, and cleans up",
       expect(geocode).not.toHaveBeenCalled();
       expect(AdvancedMarkerElement).toHaveBeenCalledTimes(4);
       expect(fitBounds).toHaveBeenCalledTimes(2);
+      expect(MapConstructor).toHaveBeenLastCalledWith(expect.any(HTMLElement), expect.objectContaining({
+        isFractionalZoomEnabled: true,
+      }));
+      expect(fitBounds).toHaveBeenLastCalledWith(expect.anything(), 48);
       clickHandlers[2]();
       const cachedContent: HTMLElement = popup.setContent.mock.calls[2][0];
       expect(Array.from(cachedContent.querySelectorAll("h2"), (node) => node.textContent)).toEqual(["Goethe Institut", "Later venue"]);
