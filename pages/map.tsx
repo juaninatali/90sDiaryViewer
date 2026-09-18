@@ -1,22 +1,23 @@
 import type { GetStaticProps } from "next";
 import { Layout } from "@/components/Layout";
 import VenueMap from "@/components/VenueMap";
-import { getAllEntries } from "@/lib/entries";
-import type { MapEntry } from "@/types/map";
+import { getMapData, reportMapDataDiagnostics } from "@/lib/server/mapData";
+import type { MapLocationData } from "@/types/map";
 
-type MapPageProps = { entries: MapEntry[] };
+type MapPageProps = { locations: MapLocationData[] };
 
-export default function MapPage({ entries }: MapPageProps) {
+export default function MapPage({ locations }: MapPageProps) {
   return (
     <Layout>
       <h1 className="mb-4 text-3xl font-bold">Archive Map</h1>
-      <VenueMap entries={entries} />
+      <VenueMap locations={locations} />
     </Layout>
   );
 }
 
-export const getStaticProps: GetStaticProps<MapPageProps> = async () => ({
-  props: {
-    entries: getAllEntries().map(({ id, date, tags }: MapEntry) => ({ id, date, tags })),
-  },
-});
+export const getStaticProps: GetStaticProps<MapPageProps> = async () => {
+  const mapData = getMapData();
+  reportMapDataDiagnostics(mapData);
+  const { locations } = mapData;
+  return { props: { locations } };
+};

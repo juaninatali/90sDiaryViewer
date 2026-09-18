@@ -1,10 +1,12 @@
-import type { MapEntry } from "@/types/map";
+import type { DiaryEntry } from "@/types/diary";
 import type { Venue } from "@/data/venues";
+
+type VenueReferenceEntry = Pick<DiaryEntry, "id" | "date" | "tags">;
 
 export type ArchiveVenue = {
   name: string;
   address: string;
-  entries: MapEntry[];
+  entries: VenueReferenceEntry[];
 };
 
 export type VenueLocation = {
@@ -14,7 +16,7 @@ export type VenueLocation = {
 };
 
 // Input is already ordered by earliest diary reference by the resolver.
-export function groupVenuesByAddress(venues: ArchiveVenue[]): VenueLocation[] {
+export function groupVenuesByAddress(venues: readonly ArchiveVenue[]): VenueLocation[] {
   const groups = new Map<string, VenueLocation>();
   for (const venue of venues) {
     const key = venue.address.trim();
@@ -39,8 +41,11 @@ export function normalizeGeocodingAddress(address: string): string {
   return hasCountry ? normalized : `${normalized}, Argentina`;
 }
 
-export function resolveReferencedVenues(entries: MapEntry[], catalogue: Venue[]) {
-  const referenced = new Map<string, MapEntry[]>();
+export function resolveReferencedVenues(
+  entries: readonly VenueReferenceEntry[],
+  catalogue: readonly Venue[],
+) {
+  const referenced = new Map<string, VenueReferenceEntry[]>();
   for (const entry of entries) {
     const names = new Set<string>();
     for (const tag of Array.isArray(entry.tags) ? entry.tags : []) {

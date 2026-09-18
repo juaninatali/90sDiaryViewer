@@ -1,10 +1,8 @@
 /// <reference types="google.maps" />
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { resolveReferencedVenues, groupVenuesByAddress } from "@/lib/locations";
+import { useEffect, useRef, useState } from "react";
 import { createGeocodingLookup, GEOCODING_BOUNDS } from "@/lib/geocodingCache";
-import { venues } from "@/data/venues";
-import type { MapEntry } from "@/types/map";
+import type { MapLocationData } from "@/types/map";
 
 type MapsWindow = Window & {
   initArchiveMap?: () => void;
@@ -39,17 +37,12 @@ function loadGoogleMaps(apiKey: string): Promise<void> {
   return mapsLoader;
 }
 
-export default function VenueMap({ entries }: { entries: MapEntry[] }) {
+export default function VenueMap({ locations }: { locations: MapLocationData[] }) {
   const container = useRef<HTMLDivElement>(null);
-  const resolved = useMemo(() => resolveReferencedVenues(entries, venues), [entries]);
   const [status, setStatus] = useState("Loading map...");
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const { unmatched, missingAddresses } = resolved;
-    const locations = groupVenuesByAddress(resolved.locations);
-    unmatched.forEach((name) => console.warn("Unmatched archive Venue tag:", name));
-    missingAddresses.forEach((name) => console.warn("Archive venue has no usable catalogue address:", name));
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAP_ID;
     if (!apiKey?.trim() || !mapId?.trim()) {
@@ -108,7 +101,7 @@ export default function VenueMap({ entries }: { entries: MapEntry[] }) {
             const position = await coordinates.lookup(location.address);
             if (cancelled) return;
             const marker = new markerLibrary.AdvancedMarkerElement({
-              map, position, title: location.name,
+              map, position, title: location.venues.map(({ name }) => name).join(" / "),
               zIndex: locations.length - index,
             });
             markers.push(marker);
@@ -123,7 +116,7 @@ export default function VenueMap({ entries }: { entries: MapEntry[] }) {
                 const name = document.createElement("h2");
                 name.className = "text-lg font-semibold";
                 name.textContent = venue.name;
-                const entryCount = new Set(venue.entries.map(({ id }) => id)).size;
+                const entryCount = venue.diaryEntryCount;
                 const details = document.createElement("p");
                 details.className = "text-sm";
                 details.append(`${entryCount} diary ${entryCount === 1 ? "entry" : "entries"} · `);
@@ -153,7 +146,7 @@ export default function VenueMap({ entries }: { entries: MapEntry[] }) {
           } catch (geocodingError) {
             if (cancelled) return;
             failed++;
-            console.warn("Could not geocode archive venue:", location.name, location.address);
+            console.warn("Could not geocode archive venue:", location.venues.map(({ name }) => name).join(" / "), location.address);
             if (typeof geocodingError === "object" && geocodingError !== null
               && "code" in geocodingError && geocodingError.code === "REQUEST_DENIED") {
               setError("Google denied geocoding access. Check that the Geocoding API is enabled and allowed by the API key restrictions, then reload.");
@@ -178,7 +171,7 @@ export default function VenueMap({ entries }: { entries: MapEntry[] }) {
       markers.forEach((marker) => { marker.map = null; });
       if (mapsWindow.gm_authFailure === authFailure) mapsWindow.gm_authFailure = previousAuthFailure;
     };
-  }, [resolved]);
+  }, [locations]);
 
   return (
     <section aria-label="Archive locations">
