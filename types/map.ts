@@ -1,3 +1,9 @@
-import type { DiaryEntry } from "@/types/diary";
+export type MapVenueData = {
+  name: string;
+  diaryEntryCount: number;
+};
 
-export type MapEntry = Pick<DiaryEntry, "id" | "date" | "tags">;
+export type MapLocationData = {
+  address: string;
+  venues: MapVenueData[];
+};

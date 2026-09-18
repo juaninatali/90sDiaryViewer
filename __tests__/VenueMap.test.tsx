@@ -1,25 +1,17 @@
 /** @jest-environment jsdom */
 import { act, render, screen, waitFor } from "@testing-library/react";
 import VenueMap from "@/components/VenueMap";
-import type { MapEntry } from "@/types/map";
+import type { MapLocationData } from "@/types/map";
 import { geocodingCacheKey } from "@/lib/geocodingCache";
 
 beforeEach(() => localStorage.clear());
 afterEach(() => localStorage.clear());
 
-jest.mock("@/data/venues", () => ({ venues: [
-  { name: "Aion", address: "Hipólito Yrigoyen 1115" },
-  { name: "Goethe Institut", address: "Av. Corrientes 319" },
-  { name: "Later venue", address: "Av. Corrientes 319" },
-  { name: "El Santo", address: null },
-  { name: "<b>Archive venue</b>", address: "<img src=x onerror=alert(1)> & archival address" },
-] }));
-
 test("shows missing configuration without requesting Google Maps", () => {
   const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   delete process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   try {
-    const view = render(<VenueMap entries={[]} />);
+    const view = render(<VenueMap locations={[]} />);
     expect(screen.getByRole("alert").textContent).toContain("configuration is missing");
     expect(document.querySelector('script[src*="maps.googleapis.com"]')).toBeNull();
     view.unmount();
@@ -64,11 +56,17 @@ test("continues after a failed address, fits successful markers, and cleans up",
     maps: { importLibrary, LatLngBounds: jest.fn().mockImplementation(() => ({ extend })) },
   } });
   const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
-  const entries = [["Venue: Aion", "Venue: Goethe Institut", "Venue: Goethe Institut", "Venue: El Santo", "Venue: Unmatched", "Artist: Other"], ["Venue: Goethe Institut", "Venue: Later venue", "Venue: <b>Archive venue</b>"]].map((tags, index): MapEntry => ({
-    id: String(index), date: "", tags,
-  }));
-  entries.push({ ...entries[1] }); // Repeated records must not inflate counts.
-  const view = render(<VenueMap entries={entries} />);
+  const locations: MapLocationData[] = [
+    { address: "Hipólito Yrigoyen 1115", venues: [{ name: "Aion", diaryEntryCount: 1 }] },
+    { address: "Av. Corrientes 319", venues: [
+      { name: "Goethe Institut", diaryEntryCount: 2 },
+      { name: "Later venue", diaryEntryCount: 1 },
+    ] },
+    { address: "<img src=x onerror=alert(1)> & archival address", venues: [
+      { name: "<b>Archive venue</b>", diaryEntryCount: 1 },
+    ] },
+  ];
+  const view = render(<VenueMap locations={locations} />);
   try {
     await act(async () => {
       (window as Window & { initArchiveMap?: () => void }).initArchiveMap!();
@@ -83,8 +81,6 @@ test("continues after a failed address, fits successful markers, and cleans up",
       bounds: { south: -35.1, west: -59.2, north: -34.1, east: -57.7 },
     });
     expect(warn).toHaveBeenCalledWith("Could not geocode archive venue:", "Aion", "Hipólito Yrigoyen 1115");
-    expect(warn).toHaveBeenCalledWith("Unmatched archive Venue tag:", "Unmatched");
-    expect(warn).toHaveBeenCalledWith("Archive venue has no usable catalogue address:", "El Santo");
     expect(AdvancedMarkerElement).toHaveBeenCalledTimes(2);
     expect(AdvancedMarkerElement).toHaveBeenCalledWith(expect.objectContaining({ title: "Goethe Institut / Later venue", zIndex: 2 }));
     expect(InfoWindow).toHaveBeenCalledTimes(1);
@@ -131,7 +127,7 @@ test("continues after a failed address, fits successful markers, and cleans up",
     expect(localStorage.getItem(geocodingCacheKey("Hipólito Yrigoyen 1115"))).toBeNull();
     // Simulate a new page mount with the same persistent browser storage.
     geocode.mockClear();
-    const cachedView = render(<VenueMap entries={entries.filter((entry) => entry.id === "1")} />);
+    const cachedView = render(<VenueMap locations={locations.slice(1)} />);
     try {
       await waitFor(() => expect(screen.getByRole("status").textContent).toContain("2 of 2 archive locations shown"));
       expect(geocode).not.toHaveBeenCalled();
