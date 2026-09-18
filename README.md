@@ -13,7 +13,7 @@ The app allows users to browse diary entries, search the archive, explore scanne
 - A dedicated image gallery with year/tag filters and incremental loading
 - An interactive Google Map of venues referenced by diary Venue tags
 - Clickable map InfoWindows displaying archival venue names and addresses
-- Light and dark them
+- Light and dark theme
 - Static generation for fast performance
 
 
