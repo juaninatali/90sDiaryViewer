@@ -1,6 +1,6 @@
 import { getAllEntries } from "@/lib/entries";
 import { DiaryEntry } from "@/types/diary";
-import { isReportImage } from "@/lib/images";
+import { isImageVisible } from "@/lib/images";
 
 export type GalleryImage = {
   src: string;
@@ -25,7 +25,7 @@ export function getGalleryImages(): GalleryImage[] {
   const entries: DiaryEntry[] = getAllEntries();
   const images = entries.flatMap((entry) =>
     (entry.images || [])
-      .filter((src) => !isReportImage(src))
+      .filter((src) => isImageVisible(src, "gallery"))
       .map((src, index) => ({
         src,
         alt: `Image ${index + 1} from "${entry.title}"`,
