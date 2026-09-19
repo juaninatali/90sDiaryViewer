@@ -376,10 +376,10 @@ export default function DiaryViewer() {
               <Link
                 href={{ pathname: "/entry/[id]", query: { id: entry.id } }}
                 key={entry.id}
-                className="no-underline"
+                className="min-w-0 no-underline"
               >
-                <Card className="cursor-pointer transition will-change-transform hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-black/30">
-                  <CardContent className="space-y-4 p-6">
+                <Card className="md:h-full cursor-pointer transition will-change-transform hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-black/30">
+                  <CardContent className="flex md:h-full flex-col gap-4 p-6 [overflow-wrap:anywhere]">
                     <h2 className="text-xl font-bold">{entry.title}</h2>
                     <p className="text-sm text-muted-foreground">
                       {formatDate(entry.date)}{entry.location ? ` - ${entry.location}` : ""}
@@ -396,15 +396,17 @@ export default function DiaryViewer() {
 
                     {/* excerpt */}
                     {entry.excerpt && (
-                      <p className="whitespace-pre-wrap text-muted-foreground">
-                        {truncate(entry.excerpt, 160)}{" "}
-                        <span className="underline">Read more</span>
+                      <p className="text-muted-foreground">
+                        <span className="whitespace-pre-wrap md:whitespace-normal md:line-clamp-5">
+                          {truncate(entry.excerpt, 160)}
+                        </span>{" "}
+                        <span className="underline md:block">Read more</span>
                       </p>
                     )}
 
                     {/* preview image(s) */}
                     {entry.images?.length > 0 && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                      <div className="md:mt-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {entry.images.slice(0, 3).map((src, index) => (
                           <div
                             key={`${src}-${index}`}
