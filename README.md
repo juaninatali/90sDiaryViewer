@@ -91,13 +91,19 @@ The response contains entry summaries, short excerpts, and up to three preview i
 The Map follows this data flow:
 
 ```text
-Diary Venue tags
+Shared server-side archive index
+  → Diary Venue tags
   → unique referenced venue names
   → exact matches in data/venues.ts
-  → shared-address groups
-  → runtime Google geocoding
+  → unique diary-entry counts and shared-address groups
+  → minimal static page data (address, venue name, entry count)
+  → browser-side Google geocoding and local cache
   → Advanced Markers and InfoWindows
 ```
+
+Venue matching, counting, and physical-address grouping happen during static page generation. The browser receives only Map-specific data rather than archive entries, so diary text, images, unrelated tags, and other entry metadata do not contribute to the `/map` page-data payload.
+
+Geocoding remains a browser-side operation. Successful coordinates are cached in `localStorage` for up to 29 days using the normalized address and geocoding bounds as the cache key. This is a partial, origin-specific cache: each browser or device maintains its own records, cache misses are geocoded live, and failed requests are isolated and not persisted. See [the geocoding-cache documentation](docs/geocoding-cache.md) for expiry, cleanup, policy, and verification details.
 
 
 ### Rendering and deployment
