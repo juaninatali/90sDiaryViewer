@@ -53,6 +53,15 @@ export function Navbar() {
               <span className="text-xl font-medium text-foreground">Map</span>
             )
           ) : null}
+          {mounted ? (
+            pathname !== "/about" ? (
+              <Link href="/about" className="inline-flex min-h-11 items-center text-xl font-medium hover:underline">
+                About
+              </Link>
+            ) : (
+              <span className="text-xl font-medium text-foreground">About</span>
+            )
+          ) : null}
         </div>
       </nav>
     </header>

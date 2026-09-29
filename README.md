@@ -44,6 +44,18 @@ npm run dev
 The current development script uses the Windows `start` command to open the browser. On other platforms, run `npx next dev --turbopack` directly.
 
 
+## About page contact
+
+The `/about` page contains provisional rights and privacy information. Set
+`NEXT_PUBLIC_ARCHIVE_CONTACT_EMAIL` in `.env.local` (and your deployment environment)
+to an address intended for public rights-holder enquiries. This value is public
+and is included in the built site; never use a private address here. Restart
+development or rebuild/redeploy production after changing it. If it is unset or
+blank, the page displays a pre-launch contact placeholder.
+
+Review the wording after the copyright/trademark audit and verify the hosting
+and third-party service setup before public launch.
+
 ## Archival data
 
 This project uses a **CSV → JSON → UI** pipeline.
